@@ -9,9 +9,9 @@ include $(srcdir)/src.mk
 noinst_HEADERS = $(SRC_H_FILES)
 
 if BUILD_TESTS
-HcNet_core_SOURCES = main/StellarCoreVersion.cpp $(SRC_CXX_FILES) $(SRC_TEST_CXX_FILES)
+HcNet_core_SOURCES = main/HcNetCoreVersion.cpp $(SRC_CXX_FILES) $(SRC_TEST_CXX_FILES)
 else # !BUILD_TESTS
-HcNet_core_SOURCES = main/StellarCoreVersion.cpp $(SRC_CXX_FILES)
+HcNet_core_SOURCES = main/HcNetCoreVersion.cpp $(SRC_CXX_FILES)
 endif # !BUILD_TESTS
 
 HcNet_core_LDADD = $(soci_LIBS) $(libmedida_LIBS)		\
@@ -24,7 +24,7 @@ TEST_FILES = $(TESTDATA_DIR)/HcNet-core_example.cfg $(TESTDATA_DIR)/HcNet-core_s
 	     $(TESTDATA_DIR)/HcNet-history.testnet.6714239.json $(TESTDATA_DIR)/HcNet-history.livenet.15686975.json $(TESTDATA_DIR)/HcNet-core_example_validators.cfg \
 	     $(TESTDATA_DIR)/HcNet-history.testnet.6714239.networkPassphrase.json
 
-BUILT_SOURCES = $(SRC_X_FILES:.x=.h) main/StellarCoreVersion.cpp $(TEST_FILES)
+BUILT_SOURCES = $(SRC_X_FILES:.x=.h) main/HcNetCoreVersion.cpp $(TEST_FILES)
 
 $(SRC_X_FILES:.x=.h): $(XDRC)
 SUFFIXES = .x .h
@@ -45,12 +45,12 @@ always:
 	@:
 
 # Always rebuild because .git/HEAD is a symbolic ref one can't depend on
-main/StellarCoreVersion.cpp: always
+main/HcNetCoreVersion.cpp: always
 	@vers=$$(cd "$(srcdir)" \
 		&& git describe --always --dirty --tags 2>/dev/null \
 		|| echo "$(PACKAGE) $(VERSION)"); \
 		sed -e "s/%%VERSION%%/$$vers/" \
-			< "$(srcdir)/main/StellarCoreVersion.cpp.in" > $@~
+			< "$(srcdir)/main/HcNetCoreVersion.cpp.in" > $@~
 	@if cmp -s $@~ $@; then rm -f $@~; else \
 	    mv -f $@~ $@ && printf "echo '%s' > $@\n" "$$(cat $@)"; fi
 

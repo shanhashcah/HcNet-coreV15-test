@@ -1,6 +1,6 @@
 #pragma once
 
-// Copyright 2015 Stellar Development Foundation and contributors. Licensed
+// Copyright 2015 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -31,6 +31,10 @@ class Application;
  *  flatter structures for better efficiency; they can use WorkSequence
  *  if a long serial order needs to be enforced.
  */
+
+// Helper lambda that parent work can pass to children
+using OnFailureCallback = std::function<void()>;
+
 class Work : public BasicWork
 {
   public:

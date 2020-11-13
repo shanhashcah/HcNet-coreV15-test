@@ -292,7 +292,7 @@ solution is, as root to run
 
 ### Tracy
 
-Stellar-core has built-in support for Tracy traces.
+HcNet-core has built-in support for Tracy traces.
 
 To install the visualizer, follow the [build and install instructions](https://github.com/wolfpld/tracy) from the main Tracy site.
 

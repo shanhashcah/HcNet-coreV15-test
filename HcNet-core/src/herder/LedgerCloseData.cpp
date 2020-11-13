@@ -15,7 +15,7 @@ namespace HcNet
 
 LedgerCloseData::LedgerCloseData(
     uint32_t ledgerSeq, std::shared_ptr<AbstractTxSetFrameForApply> txSet,
-    StellarValue const& v)
+    HcNetValue const& v)
     : mLedgerSeq(ledgerSeq), mTxSet(txSet), mValue(v)
 {
     Value x;
@@ -25,7 +25,7 @@ LedgerCloseData::LedgerCloseData(
 }
 
 std::string
-HcNetValueToString(Config const& c, StellarValue const& sv)
+HcNetValueToString(Config const& c, HcNetValue const& sv)
 {
     std::stringstream res;
 

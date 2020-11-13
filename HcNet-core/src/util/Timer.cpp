@@ -1,4 +1,4 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,7 +20,7 @@ using namespace std;
 static const uint32_t RECENT_CRANK_WINDOW = 1024;
 static const std::chrono::milliseconds CRANK_TIME_SLICE(500);
 static const size_t CRANK_EVENT_SLICE = 100;
-static const std::chrono::seconds SCHEDULER_LATENCY_WINDOW(5);
+const std::chrono::seconds SCHEDULER_LATENCY_WINDOW(5);
 
 VirtualClock::VirtualClock(Mode mode)
     : mMode(mode)
@@ -419,6 +419,12 @@ bool
 VirtualClock::actionQueueIsOverloaded() const
 {
     return mActionScheduler->getOverloadedDuration().count() != 0;
+}
+
+Scheduler::ActionType
+VirtualClock::currentSchedulerActionType() const
+{
+    return mActionScheduler->currentActionType();
 }
 
 void

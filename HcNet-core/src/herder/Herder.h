@@ -1,6 +1,6 @@
 #pragma once
 
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -10,7 +10,7 @@
 #include "herder/TransactionQueue.h"
 #include "lib/json/json-forwards.h"
 #include "overlay/Peer.h"
-#include "overlay/StellarXDR.h"
+#include "overlay/HcNetXDR.h"
 #include "scp/SCP.h"
 #include "util/Timer.h"
 #include <functional>
@@ -42,6 +42,9 @@ class Herder
 
     // timeout before considering the node out of sync
     static std::chrono::seconds const CONSENSUS_STUCK_TIMEOUT_SECONDS;
+
+    // timeout before triggering out of sync recovery
+    static std::chrono::seconds const OUT_OF_SYNC_RECOVERY_TIMER;
 
     // Maximum time slip between nodes.
     static std::chrono::seconds constexpr MAX_TIME_SLIP_SECONDS =

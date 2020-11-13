@@ -1,6 +1,6 @@
 #pragma once
 
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -56,6 +56,8 @@ class VirtualClockEventCompare
     bool operator()(std::shared_ptr<VirtualClockEvent> a,
                     std::shared_ptr<VirtualClockEvent> b);
 };
+
+extern const std::chrono::seconds SCHEDULER_LATENCY_WINDOW;
 
 class VirtualClock
 {
@@ -197,6 +199,7 @@ class VirtualClock
 
     size_t getActionQueueSize() const;
     bool actionQueueIsOverloaded() const;
+    Scheduler::ActionType currentSchedulerActionType() const;
 };
 
 class VirtualClockEvent : public NonMovableOrCopyable

@@ -1,4 +1,4 @@
-// Copyright 2019 Stellar Development Foundation and contributors. Licensed
+// Copyright 2019 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -1217,7 +1217,7 @@ TEST_CASE("remove applied", "[herder][transactionqueue]")
         herder.getPendingEnvelopes().putTxSet(txSet->getContentsHash(),
                                               ledgerSeq, txSet);
 
-        StellarValue sv{txSet->getContentsHash(), 2,
+        HcNetValue sv{txSet->getContentsHash(), 2,
                         xdr::xvector<UpgradeType, 6>{}, HcNet_VALUE_BASIC};
         herder.getHerderSCPDriver().valueExternalized(ledgerSeq,
                                                       xdr::xdr_to_opaque(sv));

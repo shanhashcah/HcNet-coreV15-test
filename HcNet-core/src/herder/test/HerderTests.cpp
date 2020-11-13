@@ -1,4 +1,4 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -30,7 +30,7 @@
 #include "transactions/TransactionFrame.h"
 #include "transactions/TransactionUtils.h"
 
-#include "xdr/Stellar-ledger.h"
+#include "xdr/HcNet-ledger.h"
 #include "xdrpp/marshal.h"
 #include <algorithm>
 #include <fmt/format.h>
@@ -1074,7 +1074,7 @@ static void
 testSCPDriver(uint32 protocolVersion, uint32_t maxTxSize, size_t expectedOps,
               bool const expectTxSetCloseTimeAffinity)
 {
-    using SVUpgrades = decltype(StellarValue::upgrades);
+    using SVUpgrades = decltype(HcNetValue::upgrades);
 
     Config cfg(getTestConfig(0, Config::TESTDB_DEFAULT));
 
@@ -1100,11 +1100,11 @@ testSCPDriver(uint32 protocolVersion, uint32_t maxTxSize, size_t expectedOps,
                                  uint64_t closeTime, SVUpgrades const& upgrades,
                                  bool sig) {
         txSet->sortForHash();
-        auto sv = StellarValue(txSet->getContentsHash(), closeTime, upgrades,
+        auto sv = HcNetValue(txSet->getContentsHash(), closeTime, upgrades,
                                HcNet_VALUE_BASIC);
         if (sig)
         {
-            herder.signStellarValue(root.getSecretKey(), sv);
+            herder.signHcNetValue(root.getSecretKey(), sv);
         }
         auto v = xdr::xdr_to_opaque(sv);
         return TxPair{v, txSet};
@@ -1188,7 +1188,7 @@ testSCPDriver(uint32 protocolVersion, uint32_t maxTxSize, size_t expectedOps,
         auto addCandidateThenTest = [&](CandidateSpec const& spec) {
             // Create a transaction set using the given parameters, combine
             // it with the given closeTime and optionally a given base fee
-            // increment, and make it into a StellarValue to add to the list
+            // increment, and make it into a HcNetValue to add to the list
             // of candidates so far.  Keep track of the hashes and sizes and
             // operation sizes of all the transaction sets, all of the close
             // times, and all of the base fee upgrades that we've seen, so that
@@ -1247,13 +1247,13 @@ testSCPDriver(uint32 protocolVersion, uint32_t maxTxSize, size_t expectedOps,
             }
 
             // Combine all the candidates seen so far, and extract the
-            // returned StellarValue.
+            // returned HcNetValue.
             ValueWrapperPtr v =
                 herder.getHerderSCPDriver().combineCandidates(1, candidates);
-            StellarValue sv;
+            HcNetValue sv;
             xdr::xdr_from_opaque(v->getValue(), sv);
 
-            // Compare the returned StellarValue's contents with the
+            // Compare the returned HcNetValue's contents with the
             // expected ones that we computed above.
             REQUIRE(sv.ext.v() ==
                     herder.getHerderSCPDriver().compositeValueType());
@@ -1283,7 +1283,7 @@ testSCPDriver(uint32 protocolVersion, uint32_t maxTxSize, size_t expectedOps,
         TxSetFramePtr txSetL2 = makeTransactions(lcl.hash, maxTxSize, 1, 1000);
         addToCandidates(makeTxPair(herder, txSetL2, 20, true));
         auto v = herder.getHerderSCPDriver().combineCandidates(1, candidates);
-        StellarValue sv;
+        HcNetValue sv;
         xdr::xdr_from_opaque(v->getValue(), sv);
         REQUIRE(sv.ext.v() == herder.getHerderSCPDriver().compositeValueType());
         REQUIRE(sv.txSetHash == txSetL2->getContentsHash());
@@ -1333,10 +1333,10 @@ testSCPDriver(uint32 protocolVersion, uint32_t maxTxSize, size_t expectedOps,
                     SCPDriver::kInvalidValue);
 
             auto p = makeTxPair(herder, txSet0, ct, true);
-            StellarValue sv;
+            HcNetValue sv;
             xdr::xdr_from_opaque(p.first, sv);
 
-            auto checkInvalid = [&](StellarValue const& sv) {
+            auto checkInvalid = [&](HcNetValue const& sv) {
                 auto v = xdr::xdr_to_opaque(sv);
                 REQUIRE(scp.validateValue(seq, v, true) ==
                         SCPDriver::kInvalidValue);
@@ -1386,7 +1386,7 @@ testSCPDriver(uint32 protocolVersion, uint32_t maxTxSize, size_t expectedOps,
                 app->getLedgerManager().getLastClosedLedgerHeader().hash);
             txSet->add(tx);
 
-            // Build a StellarValue containing the transaction set we just built
+            // Build a HcNetValue containing the transaction set we just built
             // and the given next closeTime.
             auto val = makeTxPair(herder, txSet, nextCloseTime, true);
             auto const seq = herder.getCurrentLedgerSeq() + 1;
@@ -1395,7 +1395,7 @@ testSCPDriver(uint32 protocolVersion, uint32_t maxTxSize, size_t expectedOps,
                     Herder::ENVELOPE_STATUS_FETCHING);
             REQUIRE(herder.recvTxSet(txSet->getContentsHash(), *txSet));
 
-            // Validate the StellarValue.
+            // Validate the HcNetValue.
             REQUIRE(scp.validateValue(seq, val.first, true) ==
                     (expectValid ? SCPDriver::kFullyValidatedValue
                                  : SCPDriver::kInvalidValue));
@@ -1862,9 +1862,9 @@ TEST_CASE("values externalized out of order", "[herder]")
         {
             if (env.statement.pledges.type() == SCP_ST_EXTERNALIZE)
             {
-                StellarValue sv;
+                HcNetValue sv;
                 auto& pe = herderA.getPendingEnvelopes();
-                herderA.getHerderSCPDriver().toStellarValue(
+                herderA.getHerderSCPDriver().toHcNetValue(
                     env.statement.pledges.externalize().commit.value, sv);
                 auto txset = pe.getTxSet(sv.txSetHash);
                 REQUIRE(txset);
@@ -1876,9 +1876,9 @@ TEST_CASE("values externalized out of order", "[herder]")
         {
             if (env.statement.pledges.type() == SCP_ST_EXTERNALIZE)
             {
-                StellarValue sv;
+                HcNetValue sv;
                 auto& pe = herderB.getPendingEnvelopes();
-                herderB.getHerderSCPDriver().toStellarValue(
+                herderB.getHerderSCPDriver().toHcNetValue(
                     env.statement.pledges.externalize().commit.value, sv);
                 auto txset = pe.getTxSet(sv.txSetHash);
                 REQUIRE(txset);
@@ -2290,12 +2290,12 @@ externalize(SecretKey const& sk, LedgerManager& lm, HerderImpl& herder,
     herder.getPendingEnvelopes().putTxSet(txSet->getContentsHash(), ledgerSeq,
                                           txSet);
 
-    StellarValue sv{txSet->getContentsHash(), 2, xdr::xvector<UpgradeType, 6>{},
+    HcNetValue sv{txSet->getContentsHash(), 2, xdr::xvector<UpgradeType, 6>{},
                     HcNet_VALUE_BASIC};
     if (herder.getHerderSCPDriver().compositeValueType() ==
         HcNet_VALUE_SIGNED)
     {
-        herder.signStellarValue(sk, sv);
+        herder.signHcNetValue(sk, sv);
     }
     herder.getHerderSCPDriver().valueExternalized(ledgerSeq,
                                                   xdr::xdr_to_opaque(sv));
@@ -2400,4 +2400,154 @@ TEST_CASE("do not flood too many transactions", "[herder]")
     {
         test(100);
     }
+}
+
+TEST_CASE("slot herder policy", "[herder]")
+{
+    SIMULATION_CREATE_NODE(0);
+    SIMULATION_CREATE_NODE(1);
+    SIMULATION_CREATE_NODE(2);
+    SIMULATION_CREATE_NODE(3);
+
+    Config cfg(getTestConfig());
+
+    // start in sync
+    cfg.FORCE_SCP = true;
+    cfg.MANUAL_CLOSE = false;
+    cfg.NODE_SEED = v0SecretKey;
+    cfg.MAX_SLOTS_TO_REMEMBER = 5;
+    cfg.NODE_IS_VALIDATOR = false;
+
+    cfg.QUORUM_SET.threshold = 3; // 3 out of 4
+    cfg.QUORUM_SET.validators.push_back(v1NodeID);
+    cfg.QUORUM_SET.validators.push_back(v2NodeID);
+    cfg.QUORUM_SET.validators.push_back(v3NodeID);
+
+    VirtualClock clock;
+    Application::pointer app = createTestApplication(clock, cfg);
+
+    auto& herder = static_cast<HerderImpl&>(app->getHerder());
+
+    auto qSet = herder.getSCP().getLocalQuorumSet();
+    auto qsetHash = sha256(xdr::xdr_to_opaque(qSet));
+
+    auto recvExternalize = [&](SecretKey const& sk, uint64_t slotIndex,
+                               Hash const& prevHash) {
+        auto envelope = SCPEnvelope{};
+        envelope.statement.slotIndex = slotIndex;
+        envelope.statement.pledges.type(SCP_ST_EXTERNALIZE);
+        auto& ext = envelope.statement.pledges.externalize();
+        TxSetFramePtr txSet = std::make_shared<TxSetFrame>(prevHash);
+
+        HcNetValue sv{txSet->getContentsHash(), (TimePoint)slotIndex,
+                        xdr::xvector<UpgradeType, 6>{}, HcNet_VALUE_BASIC};
+        if (herder.getHerderSCPDriver().compositeValueType() ==
+            HcNet_VALUE_SIGNED)
+        {
+            // sign values with the same secret key
+            herder.signHcNetValue(v1SecretKey, sv);
+        }
+        ext.commit.counter = 1;
+        ext.commit.value = xdr::xdr_to_opaque(sv);
+        ext.commitQuorumSetHash = qsetHash;
+        ext.nH = 1;
+        envelope.statement.nodeID = sk.getPublicKey();
+        herder.signEnvelope(sk, envelope);
+        auto res = herder.recvSCPEnvelope(envelope, qSet, *txSet);
+        REQUIRE(res == Herder::ENVELOPE_STATUS_READY);
+    };
+
+    auto const LIMIT = cfg.MAX_SLOTS_TO_REMEMBER;
+
+    auto recvExternPeers = [&](uint32 seq, Hash const& prev, bool quorum) {
+        recvExternalize(v1SecretKey, seq, prev);
+        recvExternalize(v2SecretKey, seq, prev);
+        if (quorum)
+        {
+            recvExternalize(v3SecretKey, seq, prev);
+        }
+    };
+    // first, close a few ledgers, see if we actually retain the right
+    // number of ledgers
+    auto timeout = clock.now() + std::chrono::minutes(10);
+    for (uint32 i = 0; i < LIMIT * 2; ++i)
+    {
+        auto seq = app->getLedgerManager().getLastClosedLedgerNum() + 1;
+        auto prev = app->getLedgerManager().getLastClosedLedgerHeader().hash;
+        recvExternPeers(seq, prev, true);
+        while (app->getLedgerManager().getLastClosedLedgerNum() < seq)
+        {
+            clock.crank(true);
+            REQUIRE(clock.now() < timeout);
+        }
+    }
+    REQUIRE(herder.getState() == Herder::HERDER_TRACKING_STATE);
+    REQUIRE(herder.getSCP().getKnownSlotsCount() == LIMIT);
+
+    auto oneSec = std::chrono::seconds(1);
+    // let the node go out of sync, it should reach the desired state
+    timeout = clock.now() + Herder::CONSENSUS_STUCK_TIMEOUT_SECONDS + oneSec;
+    while (herder.getState() == Herder::HERDER_TRACKING_STATE)
+    {
+        clock.crank(false);
+        REQUIRE(clock.now() < timeout);
+    }
+
+    auto const PARTIAL = Herder::LEDGER_VALIDITY_BRACKET;
+    // create a gap
+    auto newSeq = app->getLedgerManager().getLastClosedLedgerNum() + 2;
+    for (uint32 i = 0; i < PARTIAL; ++i)
+    {
+        auto prev = app->getLedgerManager().getLastClosedLedgerHeader().hash;
+        // advance clock to ensure that ct is valid
+        clock.sleep_for(oneSec);
+        recvExternPeers(newSeq++, prev, false);
+    }
+    REQUIRE(herder.getSCP().getKnownSlotsCount() == (LIMIT + PARTIAL));
+
+    timeout = clock.now() + Herder::OUT_OF_SYNC_RECOVERY_TIMER + oneSec;
+    while (herder.getSCP().getKnownSlotsCount() !=
+           Herder::LEDGER_VALIDITY_BRACKET)
+    {
+        clock.sleep_for(oneSec);
+        clock.crank(false);
+        REQUIRE(clock.now() < timeout);
+    }
+
+    Hash prevHash;
+    // add a bunch more - not v-blocking
+    for (uint32 i = 0; i < LIMIT; ++i)
+    {
+        recvExternalize(v1SecretKey, newSeq++, prevHash);
+    }
+    // policy here is to not do anything
+    auto waitForRecovery = [&]() {
+        timeout = clock.now() + Herder::OUT_OF_SYNC_RECOVERY_TIMER + oneSec;
+        while (clock.now() < timeout)
+        {
+            clock.sleep_for(oneSec);
+            clock.crank(false);
+        }
+    };
+
+    waitForRecovery();
+    auto const FULLSLOTS = Herder::LEDGER_VALIDITY_BRACKET + LIMIT;
+    REQUIRE(herder.getSCP().getKnownSlotsCount() == FULLSLOTS);
+
+    // now inject a few more, policy should apply here, with
+    // partial in between
+    // lower slots getting dropped so the total number of slots in memory is
+    // constant
+    auto cutOff = Herder::LEDGER_VALIDITY_BRACKET - 1;
+    for (uint32 i = 0; i < cutOff; ++i)
+    {
+        recvExternPeers(newSeq++, prevHash, false);
+        waitForRecovery();
+        REQUIRE(herder.getSCP().getKnownSlotsCount() == FULLSLOTS);
+    }
+    // adding one more, should get rid of the partial slots
+    recvExternPeers(newSeq++, prevHash, false);
+    waitForRecovery();
+    REQUIRE(herder.getSCP().getKnownSlotsCount() ==
+            Herder::LEDGER_VALIDITY_BRACKET);
 }

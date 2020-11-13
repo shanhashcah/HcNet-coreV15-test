@@ -1,4 +1,4 @@
-// Copyright 2017 Stellar Development Foundation and contributors. Licensed
+// Copyright 2017 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,9 +17,9 @@
 #include "scp/Slot.h"
 #include "util/Logging.h"
 #include "util/Math.h"
-#include "xdr/Stellar-SCP.h"
-#include "xdr/Stellar-ledger-entries.h"
-#include "xdr/Stellar-ledger.h"
+#include "xdr/HcNet-SCP.h"
+#include "xdr/HcNet-ledger-entries.h"
+#include "xdr/HcNet-ledger.h"
 #include <Tracy.hpp>
 #include <algorithm>
 #include <fmt/format.h>
@@ -60,8 +60,6 @@ HerderSCPDriver::SCPMetrics::SCPMetrics(Application& app)
           app.getMetrics().NewTimer({"scp", "timing", "externalize-lag"}))
     , mExternalizeDelay(
           app.getMetrics().NewTimer({"scp", "timing", "externalize-delay"}))
-    , mCostPerSlot(app.getMetrics().NewHistogram({"scp", "cost", "per-slot"}))
-
 {
 }
 
@@ -120,7 +118,7 @@ HerderSCPDriver::getState() const
 }
 
 void
-HerderSCPDriver::restoreSCPState(uint64_t index, StellarValue const& value)
+HerderSCPDriver::restoreSCPState(uint64_t index, HcNetValue const& value)
 {
     mTrackingSCP = std::make_unique<ConsensusData>(index, value);
 }
@@ -193,7 +191,7 @@ HerderSCPDriver::emitEnvelope(SCPEnvelope const& envelope)
 
 bool
 HerderSCPDriver::checkCloseTime(uint64_t slotIndex, uint64_t lastCloseTime,
-                                StellarValue const& b) const
+                                HcNetValue const& b) const
 {
     // Check closeTime (not too old)
     if (b.closeTime <= lastCloseTime)
@@ -217,7 +215,7 @@ HerderSCPDriver::checkCloseTime(uint64_t slotIndex, uint64_t lastCloseTime,
 }
 
 SCPDriver::ValidationLevel
-HerderSCPDriver::validateValueHelper(uint64_t slotIndex, StellarValue const& b,
+HerderSCPDriver::validateValueHelper(uint64_t slotIndex, HcNetValue const& b,
                                      bool nomination) const
 {
     uint64_t lastCloseTime;
@@ -225,7 +223,7 @@ HerderSCPDriver::validateValueHelper(uint64_t slotIndex, StellarValue const& b,
     if (b.ext.v() == HcNet_VALUE_SIGNED)
     {
         ZoneNamedN(sigZone, "signature check", true);
-        if (!mHerder.verifyStellarValueSignature(b))
+        if (!mHerder.verifyHcNetValueSignature(b))
         {
             return SCPDriver::kInvalidValue;
         }
@@ -387,7 +385,7 @@ HerderSCPDriver::validateValue(uint64_t slotIndex, Value const& value,
                                bool nomination)
 {
     ZoneScoped;
-    StellarValue b;
+    HcNetValue b;
     try
     {
         ZoneNamedN(xdrZone, "XDR deserialize", true);
@@ -447,7 +445,7 @@ ValueWrapperPtr
 HerderSCPDriver::extractValidValue(uint64_t slotIndex, Value const& value)
 {
     ZoneScoped;
-    StellarValue b;
+    HcNetValue b;
     try
     {
         xdr::xdr_from_opaque(value, b);
@@ -477,7 +475,7 @@ HerderSCPDriver::extractValidValue(uint64_t slotIndex, Value const& value)
             }
         }
 
-        res = wrapStellarValue(b);
+        res = wrapHcNetValue(b);
     }
 
     return res;
@@ -494,7 +492,7 @@ HerderSCPDriver::toShortString(PublicKey const& pk) const
 std::string
 HerderSCPDriver::getValueString(Value const& v) const
 {
-    StellarValue b;
+    HcNetValue b;
     if (v.empty())
     {
         return "[:empty:]";
@@ -633,7 +631,7 @@ HerderSCPDriver::combineCandidates(uint64_t slotIndex,
 
     Hash h;
 
-    StellarValue comp(h, 0, emptyUpgradeSteps, HcNet_VALUE_BASIC);
+    HcNetValue comp(h, 0, emptyUpgradeSteps, HcNet_VALUE_BASIC);
 
     std::map<LedgerUpgradeType, LedgerUpgrade> upgrades;
 
@@ -643,14 +641,14 @@ HerderSCPDriver::combineCandidates(uint64_t slotIndex,
 
     Hash candidatesHash;
 
-    std::vector<StellarValue> candidateValues;
+    std::vector<HcNetValue> candidateValues;
 
     TimePoint maxCloseTime = 0;
 
     for (auto const& c : candidates)
     {
         candidateValues.emplace_back();
-        StellarValue& sv = candidateValues.back();
+        HcNetValue& sv = candidateValues.back();
 
         xdr::xdr_from_opaque(c->getValue(), sv);
         candidatesHash ^= sha256(c->getValue());
@@ -740,12 +738,12 @@ HerderSCPDriver::combineCandidates(uint64_t slotIndex,
         comp.upgrades.emplace_back(v.begin(), v.end());
     }
 
-    auto res = wrapStellarValue(comp);
+    auto res = wrapHcNetValue(comp);
     return res;
 }
 
 bool
-HerderSCPDriver::toStellarValue(Value const& v, StellarValue& sv)
+HerderSCPDriver::toHcNetValue(Value const& v, HcNetValue& sv)
 {
     try
     {
@@ -768,7 +766,7 @@ HerderSCPDriver::valueExternalized(uint64_t slotIndex, Value const& value)
         it = mSCPTimers.erase(it);
     }
 
-    StellarValue b;
+    HcNetValue b;
     try
     {
         xdr::xdr_from_opaque(value, b);
@@ -776,9 +774,9 @@ HerderSCPDriver::valueExternalized(uint64_t slotIndex, Value const& value)
     catch (...)
     {
         // This may not be possible as all messages are validated and should
-        // therefore contain a valid StellarValue.
+        // therefore contain a valid HcNetValue.
         CLOG(ERROR, "Herder") << "HerderSCPDriver::valueExternalized"
-                              << " Externalized StellarValue malformed";
+                              << " Externalized HcNetValue malformed";
         CLOG(ERROR, "Herder") << REPORT_INTERNAL_BUG;
         // no point in continuing as 'b' contains garbage at this point
         abort();
@@ -865,15 +863,15 @@ HerderSCPDriver::logQuorumInformation(uint64_t index)
 }
 
 void
-HerderSCPDriver::nominate(uint64_t slotIndex, StellarValue const& value,
+HerderSCPDriver::nominate(uint64_t slotIndex, HcNetValue const& value,
                           TxSetFramePtr proposedSet,
-                          StellarValue const& previousValue)
+                          HcNetValue const& previousValue)
 {
     ZoneScoped;
-    mCurrentValue = wrapStellarValue(value);
+    mCurrentValue = wrapHcNetValue(value);
     mLedgerSeqNominating = static_cast<uint32_t>(slotIndex);
 
-    auto valueHash = sha256(xdr::xdr_to_opaque(mCurrentValue->getValue()));
+    auto valueHash = xdrSha256(mCurrentValue->getValue());
     CLOG(DEBUG, "Herder") << "HerderSCPDriver::triggerNextLedger"
                           << " txSet.size: "
                           << proposedSet->mTransactions.size()
@@ -1041,18 +1039,16 @@ HerderSCPDriver::recordSCPExternalizeEvent(uint64_t slotIndex, NodeID const& id,
         // Record externalize delay
         if (timing.mSelfExternalize)
         {
-            recordLogTiming(*timing.mSelfExternalize, now,
-                            mSCPMetrics.mExternalizeDelay,
-                            fmt::format("externalize delay ({})",
-                                        mApp.getConfig().toShortString(id)),
-                            std::chrono::nanoseconds::zero(), slotIndex);
+            recordLogTiming(
+                *timing.mSelfExternalize, now, mSCPMetrics.mExternalizeDelay,
+                fmt::format("externalize delay ({})", toShortString(id)),
+                std::chrono::nanoseconds::zero(), slotIndex);
         }
 
         // Record lag for other nodes
         auto& lag = mQSetLag[id];
         recordLogTiming(*timing.mFirstExternalize, now, lag,
-                        fmt::format("externalize lag ({})",
-                                    mApp.getConfig().toShortString(id)),
+                        fmt::format("externalize lag ({})", toShortString(id)),
                         std::chrono::nanoseconds::zero(), slotIndex);
     }
 }
@@ -1122,141 +1118,6 @@ HerderSCPDriver::recordSCPExecutionMetrics(uint64_t slotIndex)
     }
 }
 
-static bool
-shouldReportCostOutlier(double possibleOutlierCost, double expectedCost,
-                        double ratioLimit)
-{
-    if (possibleOutlierCost <= 0 || expectedCost <= 0)
-    {
-        CLOG(ERROR, "SCP") << "Unexpected k-means value: must be positive";
-        return false;
-    }
-
-    if (possibleOutlierCost / expectedCost > ratioLimit)
-    {
-        // If we're off by too much from the selected cluster, report the value
-        return true;
-    }
-    return false;
-}
-
-void
-HerderSCPDriver::reportCostOutliersForSlot(int64_t slotIndex,
-                                           bool updateMetrics)
-{
-    ZoneScoped;
-
-    const uint32_t K_MEAN_NUM_CLUSTERS = 3;
-    const double OUTLIER_COST_RATIO_LIMIT = 10;
-
-    auto tracked = mPendingEnvelopes.getCostPerValidator(slotIndex);
-    if (tracked.empty())
-    {
-        return;
-    }
-
-    std::vector<double> myValidatorsTrackedCost;
-    double totalCost = 0;
-
-    for (auto const& t : tracked)
-    {
-        if (t.second > 0)
-        {
-            double cost = static_cast<double>(t.second);
-            myValidatorsTrackedCost.push_back(cost);
-            totalCost += cost;
-        }
-    }
-
-    // Compare each node to other nodes we heard from for this slot
-    // Note: do not include cost from self as it's much smaller and will
-    // likely skew the data
-    if (myValidatorsTrackedCost.size() > 1)
-    {
-        auto numClusters =
-            std::min(static_cast<uint32_t>(myValidatorsTrackedCost.size()),
-                     K_MEAN_NUM_CLUSTERS);
-        auto clusters = k_means(myValidatorsTrackedCost, numClusters);
-
-        if (clusters.empty() || *(clusters.begin()) <= 0)
-        {
-            CLOG(ERROR, "SCP")
-                << "Expected non-empty set of positive cluster centers";
-        }
-        else
-        {
-            Json::Value res;
-            for (auto const& t : tracked)
-            {
-                auto clusterToCompare =
-                    closest_cluster(static_cast<double>(t.second), clusters);
-                auto const smallestCluster = *(clusters.begin());
-                if (shouldReportCostOutlier(clusterToCompare, smallestCluster,
-                                            OUTLIER_COST_RATIO_LIMIT))
-                {
-                    res[mApp.getConfig().toShortString(t.first)] =
-                        static_cast<Json::UInt64>(t.second);
-                }
-            }
-
-            Json::FastWriter fw;
-            if (!res.empty())
-            {
-                CLOG(WARNING, "SCP") << "High validator costs for slot "
-                                     << slotIndex << ": " << fw.write(res);
-            }
-        }
-    }
-
-    if (updateMetrics && totalCost > 0)
-    {
-        mSCPMetrics.mCostPerSlot.Update(static_cast<int64_t>(totalCost));
-    }
-}
-
-Json::Value
-HerderSCPDriver::getJsonValidatorCost(bool summary, bool fullKeys,
-                                      uint64 index) const
-{
-    Json::Value res;
-
-    auto computeTotalAndMaybeFillJson = [&](Json::Value& res, uint64 slot) {
-        auto tracked = mPendingEnvelopes.getCostPerValidator(slot);
-        size_t total = 0;
-        for (auto const& t : tracked)
-        {
-            if (!summary)
-            {
-                res[std::to_string(slot)][toStrKey(t.first, fullKeys)] =
-                    static_cast<Json::UInt64>(t.second);
-            }
-            total += t.second;
-        }
-        return total;
-    };
-
-    // Total for one or all slots
-    size_t summaryTotal = 0;
-    if (index == 0)
-    {
-        for (auto const& scpInfo : mSCPExecutionTimes)
-        {
-            auto slotTotal = computeTotalAndMaybeFillJson(res, scpInfo.first);
-            summaryTotal += slotTotal;
-        }
-    }
-    else
-    {
-        summaryTotal = computeTotalAndMaybeFillJson(res, index);
-    }
-
-    if (summary)
-    {
-        res = static_cast<Json::UInt64>(summaryTotal);
-    }
-    return res;
-}
-
 void
 HerderSCPDriver::purgeSlots(uint64_t maxSlotIndex)
 {
@@ -1270,7 +1131,7 @@ HerderSCPDriver::purgeSlots(uint64_t maxSlotIndex)
     getSCP().purgeSlots(maxSlotIndex);
 }
 
-StellarValueType
+HcNetValueType
 HerderSCPDriver::compositeValueType() const
 {
     return curProtocolPreservesTxSetCloseTimeAffinity() ? HcNet_VALUE_SIGNED
@@ -1291,7 +1152,7 @@ class SCPHerderValueWrapper : public ValueWrapper
     TxSetFramePtr mTxSet;
 
   public:
-    explicit SCPHerderValueWrapper(StellarValue const& sv, Value const& value,
+    explicit SCPHerderValueWrapper(HcNetValue const& sv, Value const& value,
                                    HerderImpl& herder)
         : ValueWrapper(value), mHerder(herder)
     {
@@ -1308,8 +1169,8 @@ class SCPHerderValueWrapper : public ValueWrapper
 ValueWrapperPtr
 HerderSCPDriver::wrapValue(Value const& val)
 {
-    StellarValue sv;
-    auto b = mHerder.getHerderSCPDriver().toStellarValue(val, sv);
+    HcNetValue sv;
+    auto b = mHerder.getHerderSCPDriver().toHcNetValue(val, sv);
     if (!b)
     {
         throw std::runtime_error(fmt::format(
@@ -1320,7 +1181,7 @@ HerderSCPDriver::wrapValue(Value const& val)
 }
 
 ValueWrapperPtr
-HerderSCPDriver::wrapStellarValue(StellarValue const& sv)
+HerderSCPDriver::wrapHcNetValue(HcNetValue const& sv)
 {
     auto val = xdr::xdr_to_opaque(sv);
     auto res = std::make_shared<SCPHerderValueWrapper>(sv, val, mHerder);

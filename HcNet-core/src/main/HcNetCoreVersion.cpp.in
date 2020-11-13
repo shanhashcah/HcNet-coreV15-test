@@ -1,4 +1,4 @@
-#include "main/StellarCoreVersion.h"
+#include "main/HcNetCoreVersion.h"
 
 const std::string HcNet_CORE_VERSION = "%%VERSION%%";
 

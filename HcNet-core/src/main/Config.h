@@ -1,11 +1,11 @@
 #pragma once
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "crypto/SecretKey.h"
 #include "lib/util/cpptoml.h"
-#include "overlay/StellarXDR.h"
+#include "overlay/HcNetXDR.h"
 #include "util/SecretValue.h"
 #include "util/Timer.h"
 #include "util/optional.h"
@@ -309,8 +309,6 @@ class Config : public std::enable_shared_from_this<Config>
     unsigned short PEER_AUTHENTICATION_TIMEOUT;
     unsigned short PEER_TIMEOUT;
     unsigned short PEER_STRAGGLER_TIMEOUT;
-    std::chrono::milliseconds MAX_BATCH_READ_PERIOD_MS;
-    int MAX_BATCH_READ_COUNT;
     int MAX_BATCH_WRITE_COUNT;
     int MAX_BATCH_WRITE_BYTES;
     static constexpr auto const POSSIBLY_PREFERRED_EXTRA = 2;

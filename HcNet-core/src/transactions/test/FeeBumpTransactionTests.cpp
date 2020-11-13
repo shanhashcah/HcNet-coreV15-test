@@ -1,4 +1,4 @@
-// Copyright 2020 Stellar Development Foundation and contributors. Licensed
+// Copyright 2020 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -255,7 +255,7 @@ TEST_CASE("fee bump transactions", "[tx][feebump]")
             auto delta = ltx.getDelta();
             REQUIRE(delta.entry.size() == 1);
             auto gkey = delta.entry.begin()->first;
-            REQUIRE(gkey.type() == GeneralizedLedgerEntryType::LEDGER_ENTRY);
+            REQUIRE(gkey.type() == InternalLedgerEntryType::LEDGER_ENTRY);
             REQUIRE(gkey.ledgerKey().account().accountID == acc.getPublicKey());
             auto entryDelta = delta.entry.begin()->second;
             auto prev = entryDelta.previous->ledgerEntry().data.account();

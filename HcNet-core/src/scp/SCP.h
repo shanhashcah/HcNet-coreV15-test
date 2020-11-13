@@ -1,6 +1,6 @@
 #pragma once
 
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -86,6 +86,9 @@ class SCP
     // returns the validation state of the given slot
     bool isSlotFullyValidated(uint64 slotIndex);
 
+    // returns if we received messages from a v-blocking set
+    bool gotVBlocking(uint64 slotIndex);
+
     // Helpers for monitoring and reporting the internal memory-usage of the SCP
     // protocol to system metric reporters.
     size_t getKnownSlotsCount() const;
@@ -108,9 +111,13 @@ class SCP
                              std::function<bool(SCPEnvelope const&)> const& f,
                              bool forceSelf);
 
-    // iterates through slots, starting from ledgerSeq
+    // iterates through slots, starting from slot startIndex
     void processSlotsAscendingFrom(uint64 startIndex,
                                    std::function<bool(uint64)> const& f);
+
+    // iterates through slots, starting from slot startIndex
+    void processSlotsDescendingFrom(uint64 startIndex,
+                                    std::function<bool(uint64)> const& f);
 
     // returns the latest message from a node
     // or nullptr if not found

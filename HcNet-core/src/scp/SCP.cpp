@@ -1,4 +1,4 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -74,16 +74,9 @@ void
 SCP::purgeSlots(uint64 maxSlotIndex)
 {
     auto it = mKnownSlots.begin();
-    while (it != mKnownSlots.end())
+    while (it != mKnownSlots.end() && it->first < maxSlotIndex)
     {
-        if (it->first < maxSlotIndex)
-        {
-            it = mKnownSlots.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
+        it = mKnownSlots.erase(it);
     }
 }
 
@@ -174,6 +167,20 @@ SCP::isSlotFullyValidated(uint64 slotIndex)
     }
 }
 
+bool
+SCP::gotVBlocking(uint64 slotIndex)
+{
+    auto slot = getSlot(slotIndex, false);
+    if (slot)
+    {
+        return slot->gotVBlocking();
+    }
+    else
+    {
+        return false;
+    }
+}
+
 size_t
 SCP::getKnownSlotsCount() const
 {
@@ -237,6 +244,21 @@ SCP::processSlotsAscendingFrom(uint64 startingSlot,
     for (auto iter = mKnownSlots.lower_bound(startingSlot);
          iter != mKnownSlots.end(); ++iter)
     {
+        if (!f(iter->first))
+        {
+            break;
+        }
+    }
+}
+
+void
+SCP::processSlotsDescendingFrom(uint64 startingSlot,
+                                std::function<bool(uint64)> const& f)
+{
+    auto iter = mKnownSlots.upper_bound(startingSlot);
+    while (iter != mKnownSlots.begin())
+    {
+        --iter;
         if (!f(iter->first))
         {
             break;

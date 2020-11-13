@@ -2,7 +2,7 @@
 title: Ledger
 ---
 
-- **Ledger**: A ledger is the state of the distributed Stellar database at a
+- **Ledger**: A ledger is the state of the distributed HcNet database at a
   particular point in time. It is composed of a set of _ledger entries_,
   including (1) accounts and their balances, (2) buy and sell offers, (3) and
   trust lines, as well as a _ledger header_ that records some additional meta
@@ -15,10 +15,10 @@ title: Ledger
 
 - **Ledger header**: The ledger's header contains meta data about the ledger,
   including the hash of the previous ledger (thus recording the chain) and its
-  own hash. (See [`src/xdr/Stellar-ledger.x`](/src/xdr/Stellar-ledger.x))
+  own hash. (See [`src/xdr/HcNet-ledger.x`](/src/xdr/HcNet-ledger.x))
 
 
-`Stellar-core` maintains the content of the latest ledger and of the ledger
+`HcNet-core` maintains the content of the latest ledger and of the ledger
 chain in a number of different representations in order to satisfy competing
 performance needs.
 

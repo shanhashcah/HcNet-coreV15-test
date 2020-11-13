@@ -1,4 +1,4 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -186,12 +186,10 @@ applyCheck(TransactionFramePtr tx, Application& app, bool checkSeqNum)
             REQUIRE(ltxDelta.entry.size() == 1);
             auto current = ltxDelta.entry.begin()->second.current;
             REQUIRE(current);
-            REQUIRE(current->type() ==
-                    GeneralizedLedgerEntryType::LEDGER_ENTRY);
+            REQUIRE(current->type() == InternalLedgerEntryType::LEDGER_ENTRY);
             auto previous = ltxDelta.entry.begin()->second.previous;
             REQUIRE(previous);
-            REQUIRE(previous->type() ==
-                    GeneralizedLedgerEntryType::LEDGER_ENTRY);
+            REQUIRE(previous->type() == InternalLedgerEntryType::LEDGER_ENTRY);
             auto currAcc = current->ledgerEntry().data.account();
             auto prevAcc = previous->ledgerEntry().data.account();
             REQUIRE(prevAcc == srcAccountBefore);
@@ -300,11 +298,11 @@ applyCheck(TransactionFramePtr tx, Application& app, bool checkSeqNum)
                             auto current = kvp.second.current;
                             REQUIRE(current);
                             REQUIRE(current->type() ==
-                                    GeneralizedLedgerEntryType::LEDGER_ENTRY);
+                                    InternalLedgerEntryType::LEDGER_ENTRY);
                             auto previous = kvp.second.previous;
                             REQUIRE(previous);
                             REQUIRE(previous->type() ==
-                                    GeneralizedLedgerEntryType::LEDGER_ENTRY);
+                                    InternalLedgerEntryType::LEDGER_ENTRY);
 
                             // From V13, it's possible to remove one-time
                             // signers on early failures
@@ -420,7 +418,7 @@ closeLedgerOn(Application& app, uint32 ledgerSeq, time_t closeTime,
         REQUIRE(txSet->checkValid(app, 0, 0));
     }
 
-    StellarValue sv(txSet->getContentsHash(), closeTime, emptyUpgradeSteps,
+    HcNetValue sv(txSet->getContentsHash(), closeTime, emptyUpgradeSteps,
                     HcNet_VALUE_BASIC);
     LedgerCloseData ledgerData(ledgerSeq, txSet, sv);
     app.getLedgerManager().closeLedger(ledgerData);

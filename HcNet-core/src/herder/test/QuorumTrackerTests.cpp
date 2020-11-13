@@ -1,4 +1,4 @@
-// Copyright 2019 Stellar Development Foundation and contributors. Licensed
+// Copyright 2019 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -10,7 +10,7 @@
 #include "scp/SCP.h"
 #include "test/TestUtils.h"
 #include "test/test.h"
-#include "xdr/Stellar-ledger.h"
+#include "xdr/HcNet-ledger.h"
 
 using namespace HcNet;
 
@@ -117,11 +117,11 @@ testQuorumTracker(uint32 protocolVersion)
     auto makeValue = [&](int i) {
         auto const& lcl = app->getLedgerManager().getLastClosedLedgerHeader();
         auto txSet = std::make_shared<TxSetFrame>(lcl.hash);
-        auto sv = StellarValue{txSet->getContentsHash(),
+        auto sv = HcNetValue{txSet->getContentsHash(),
                                lcl.header.scpValue.closeTime + i,
                                emptyUpgradeSteps, HcNet_VALUE_BASIC};
         auto v = xdr::xdr_to_opaque(sv);
-        herder->signStellarValue(valSigner, sv);
+        herder->signHcNetValue(valSigner, sv);
         auto vSigned = xdr::xdr_to_opaque(sv);
 
         return ValuesTxSet{v, vSigned, txSet};

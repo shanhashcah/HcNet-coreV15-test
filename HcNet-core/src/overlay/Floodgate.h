@@ -1,11 +1,11 @@
 #pragma once
 
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "overlay/Peer.h"
-#include "overlay/StellarXDR.h"
+#include "overlay/HcNetXDR.h"
 #include <map>
 
 /**
@@ -37,10 +37,10 @@ class Floodgate
         typedef std::shared_ptr<FloodRecord> pointer;
 
         uint32_t mLedgerSeq;
-        StellarMessage mMessage;
+        HcNetMessage mMessage;
         std::set<std::string> mPeersTold;
 
-        FloodRecord(StellarMessage const& msg, uint32_t ledger,
+        FloodRecord(HcNetMessage const& msg, uint32_t ledger,
                     Peer::pointer peer);
     };
 
@@ -52,26 +52,26 @@ class Floodgate
 
   public:
     Floodgate(Application& app);
-    // Floodgate will be cleared after every ledger close
-    void clearBelow(uint32_t currentLedger);
+    // forget data strictly older than `maxLedger`
+    void clearBelow(uint32_t maxLedger);
     // returns true if this is a new record
     // fills msgID with msg's hash
-    bool addRecord(StellarMessage const& msg, Peer::pointer fromPeer,
+    bool addRecord(HcNetMessage const& msg, Peer::pointer fromPeer,
                    Hash& msgID);
 
-    void broadcast(StellarMessage const& msg, bool force);
+    void broadcast(HcNetMessage const& msg, bool force);
 
     // returns the list of peers that sent us the item with hash `msgID`
-    // NB: `msgID` is the hash of a `StellarMessage`
+    // NB: `msgID` is the hash of a `HcNetMessage`
     std::set<Peer::pointer> getPeersKnows(Hash const& msgID);
 
     // removes the record corresponding to `msgID`
-    // `msgID` corresponds to a `StellarMessage`
+    // `msgID` corresponds to a `HcNetMessage`
     void forgetRecord(Hash const& msgID);
 
     void shutdown();
 
-    void updateRecord(StellarMessage const& oldMsg,
-                      StellarMessage const& newMsg);
+    void updateRecord(HcNetMessage const& oldMsg,
+                      HcNetMessage const& newMsg);
 };
 }

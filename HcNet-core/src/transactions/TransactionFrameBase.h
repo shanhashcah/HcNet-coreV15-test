@@ -1,11 +1,11 @@
-// Copyright 2020 Stellar Development Foundation and contributors. Licensed
+// Copyright 2020 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #pragma once
 
 #include "ledger/LedgerHashUtils.h"
-#include "overlay/StellarXDR.h"
+#include "overlay/HcNetXDR.h"
 #include <unordered_set>
 
 namespace HcNet
@@ -58,6 +58,6 @@ class TransactionFrameBase
 
     virtual void processFeeSeqNum(AbstractLedgerTxn& ltx, int64_t baseFee) = 0;
 
-    virtual StellarMessage toStellarMessage() const = 0;
+    virtual HcNetMessage toHcNetMessage() const = 0;
 };
 }

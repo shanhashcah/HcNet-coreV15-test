@@ -4,7 +4,7 @@ title: Administration
 
 ## Introduction
 
-Stellar Core is the program nodes use to communicate with other nodes to create and maintain the Stellar peer-to-peer network.  It's an implementation of the Stellar Consensus Protocol configured to construct a chain of ledgers guaranteed to be in agreement across all participating nodes at all times.
+HcNet Core is the program nodes use to communicate with other nodes to create and maintain the HcNet peer-to-peer network.  It's an implementation of the HcNet Consensus Protocol configured to construct a chain of ledgers guaranteed to be in agreement across all participating nodes at all times.
 
 This document describes various aspects of installing, configuring, and maintaining a `HcNet-core` node.  It will explain:
 
@@ -250,11 +250,11 @@ To generate a quorum set, HcNet core:
 While this does not absolve you of all responsibility — you still need to pick trustworthy validators and keep an eye on them to ensure that they’re consistent and reliable — it does make your life easier, and reduces the chances for human error.
 
 #### Validator discovery
-When you add a validating node to your quorum set, it’s generally because you trust the *organization* running the node: you trust SDF, not some anonymous Stellar public key. 
+When you add a validating node to your quorum set, it’s generally because you trust the *organization* running the node: you trust SDF, not some anonymous HcNet public key. 
 
 In order to create a self-verified link between a node and the organization that runs it, a validator declares a home domain on-chain using a `set_options` operation, and publishes organizational information in a HcNet.toml file hosted on that domain.  To find out how that works, take a look at [SEP-20](https://github.com/HcNet/HcNet-protocol/blob/master/ecosystem/sep-0020.md).  
 
-As a result of that link, you can look up a node by its Stellar public key and check the HcNet.toml to find out who runs it.  It’s possible to do that manually, but you can also just consult the list of nodes on [Stellarbeat.io](https://HcNetbeat.io/nodes).  If you decide to trust an organization, you can use that list to collect the information necessary to add their nodes to your configuration.  
+As a result of that link, you can look up a node by its HcNet public key and check the HcNet.toml to find out who runs it.  It’s possible to do that manually, but you can also just consult the list of nodes on [HcNetbeat.io](https://HcNetbeat.io/nodes).  If you decide to trust an organization, you can use that list to collect the information necessary to add their nodes to your configuration.  
 
 When you look at that list, you will discover that the most reliable organizations actually run more than one validator, and adding all of an organization’s nodes to your quorum set creates the redundancy necessary to sustain arbitrary node failure.  When an organization with a trio of nodes takes one down for maintenance, for instance, the remaining two vote on the organization’s behalf, and the organization’s network presence persists.
 
@@ -291,7 +291,7 @@ Field | Requirements | Description
 NAME | string | A unique alias for the node
 QUALITY | string | Rating for node (required unless specified in `[[HOME_DOMAINS]]`): `HIGH`, `MEDIUM`, or `LOW`.
 HOME_DOMAIN | string | URL of home domain linked to validator
-PUBLIC_KEY | string | Stellar public key associated with validator
+PUBLIC_KEY | string | HcNet public key associated with validator
 ADDRESS | string | Peer:port associated with validator (optional)
 HISTORY | string | archive GET command associated with validator (optional)
 
@@ -395,7 +395,7 @@ This command will initialize the database as well as the bucket directory and th
 You can also use this command if your DB gets corrupted and you want to restart it from scratch. 
 
 #### Database
-Stellar-core stores the state of the ledger in a SQL database.
+HcNet-core stores the state of the ledger in a SQL database.
 
 This DB should either be a SQLite database or, for larger production instances, a separate PostgreSQL server.
 
@@ -428,7 +428,7 @@ Any reasonably-recent state will do -- if such a snapshot is a little old, HcNet
 
 
 #### Buckets
-Stellar-core stores a duplicate copy of the ledger in the form of flat XDR files 
+HcNet-core stores a duplicate copy of the ledger in the form of flat XDR files 
 called "buckets." These files are placed in a directory specified in the config 
 file as `BUCKET_DIR_PATH`, which defaults to `buckets`. The bucket files are used
  for hashing and transmission of ledger differences to history archives. 
@@ -438,7 +438,7 @@ Buckets should be stored on a fast local disk with sufficient space to store sev
  For the most part, the contents of both directories can be ignored as they are managed by HcNet-core.
 
 ### History archives
-Stellar-core normally interacts with one or more "history archives," which are 
+HcNet-core normally interacts with one or more "history archives," which are 
 configurable facilities for storing and retrieving flat files containing history 
 checkpoints: bucket files and history logs. History archives are usually off-site 
 commodity storage services such as Amazon S3, Google Cloud Storage, 
@@ -506,7 +506,7 @@ as `curl`, or by running a command such as
 
 `$ HcNet-core http-command <http-command>`
 
-The endpoint is [not intended to be exposed to the public internet](#interaction-with-other-internal-systems). It's typically accessed by administrators, or by a mid-tier application to submit transactions to the Stellar network. 
+The endpoint is [not intended to be exposed to the public internet](#interaction-with-other-internal-systems). It's typically accessed by administrators, or by a mid-tier application to submit transactions to the HcNet network. 
 
 See [commands](./commands.md) for a description of the available commands.
 
@@ -581,7 +581,7 @@ When the node is done catching up, its state will change to
 ```
 
 ## Logging
-Stellar-core sends logs to standard output and `HcNet-core.log` by default, 
+HcNet-core sends logs to standard output and `HcNet-core.log` by default, 
 configurable as `LOG_FILE_PATH`.
 
  Log messages are classified by progressive _priority levels_:
@@ -627,7 +627,7 @@ The output will look something like
          "num" : 24311579,
          "version" : 11
       },
-      "network" : "Public Global Stellar Network ; September 2015",
+      "network" : "Public Global HcNet Network ; September 2015",
       "peers" : {
          "authenticated_count" : 5,
          "pending_count" : 0
@@ -1073,16 +1073,16 @@ This section contains information that is useful to know but that should not sto
 
 ### Runtime information: start and stop
 
-Stellar-core can be started directly from the command line, or through a supervision 
+HcNet-core can be started directly from the command line, or through a supervision 
 system such as `init`, `upstart`, or `systemd`.
 
-Stellar-core can be gracefully exited at any time by delivering `SIGINT` or
+HcNet-core can be gracefully exited at any time by delivering `SIGINT` or
  pressing `CTRL-C`. It can be safely, forcibly terminated with `SIGTERM` or
   `SIGKILL`. The latter may leave a stale lock file in the `BUCKET_DIR_PATH`,
    and you may need to remove the file before it will restart. 
    Otherwise, all components are designed to recover from abrupt termination.
 
-Stellar-core can also be packaged in a container system such as Docker, so long 
+HcNet-core can also be packaged in a container system such as Docker, so long 
 as `BUCKET_DIR_PATH` and the database are stored on persistent volumes. For an
 example, see [docker-HcNet-core](https://github.com/HcNet/docker-HcNet-core-horizon).
 

@@ -1,4 +1,4 @@
-// Copyright 2015 Stellar Development Foundation and contributors. Licensed
+// Copyright 2015 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -6,12 +6,13 @@
 
 #include "herder/LedgerCloseData.h"
 #include "herder/TxSetFrame.h"
+#include "history/HistoryArchive.h"
 #include "ledger/LedgerRange.h"
 #include "util/XDRStream.h"
 #include "work/ConditionalWork.h"
 #include "work/Work.h"
-#include "xdr/Stellar-SCP.h"
-#include "xdr/Stellar-ledger.h"
+#include "xdr/HcNet-SCP.h"
+#include "xdr/HcNet-ledger.h"
 
 namespace medida
 {
@@ -54,6 +55,7 @@ class ApplyCheckpointWork : public BasicWork
     XDRInputFileStream mTxIn;
     TransactionHistoryEntry mTxHistoryEntry;
     LedgerHeaderHistoryEntry mHeaderHistoryEntry;
+    OnFailureCallback mOnFailure;
 
     medida::Meter& mApplyLedgerSuccess;
     medida::Meter& mApplyLedgerFailure;
@@ -69,9 +71,10 @@ class ApplyCheckpointWork : public BasicWork
 
   public:
     ApplyCheckpointWork(Application& app, TmpDir const& downloadDir,
-                        LedgerRange const& range);
+                        LedgerRange const& range, OnFailureCallback cb);
     ~ApplyCheckpointWork() = default;
     std::string getStatus() const override;
+    void onFailureRaise() override;
     void shutdown() override;
 
   protected:

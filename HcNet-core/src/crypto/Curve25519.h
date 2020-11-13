@@ -1,25 +1,18 @@
 #pragma once
 
-// Copyright 2015 Stellar Development Foundation and contributors. Licensed
+// Copyright 2015 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "ByteSlice.h"
 #include "util/Logging.h"
-#include "xdr/Stellar-types.h"
+#include "xdr/HcNet-types.h"
 #include <fmt/format.h>
 #include <functional>
 #include <sodium.h>
 
 namespace HcNet
 {
-class CryptoError : public std::runtime_error
-{
-  public:
-    CryptoError(std::string const& msg) : std::runtime_error(msg)
-    {
-    }
-};
 // This module contains functions for doing ECDH on Curve25519. Despite the
 // equivalence between this curve and Ed25519 (used in signatures, see
 // SecretKey.h) we use Curve25519 keys _only_ for ECDH shared-key-agreement

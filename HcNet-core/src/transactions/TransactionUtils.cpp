@@ -1,10 +1,10 @@
-// Copyright 2018 Stellar Development Foundation and contributors. Licensed
+// Copyright 2018 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "transactions/TransactionUtils.h"
 #include "crypto/SecretKey.h"
-#include "ledger/GeneralizedLedgerEntry.h"
+#include "ledger/InternalLedgerEntry.h"
 #include "ledger/LedgerTxn.h"
 #include "ledger/LedgerTxnEntry.h"
 #include "ledger/LedgerTxnHeader.h"
@@ -146,18 +146,18 @@ claimableBalanceKey(ClaimableBalanceID const& balanceID)
     return key;
 }
 
-GeneralizedLedgerKey
+InternalLedgerKey
 sponsorshipKey(AccountID const& sponsoredID)
 {
-    GeneralizedLedgerKey gkey(GeneralizedLedgerEntryType::SPONSORSHIP);
+    InternalLedgerKey gkey(InternalLedgerEntryType::SPONSORSHIP);
     gkey.sponsorshipKey().sponsoredID = sponsoredID;
     return gkey;
 }
 
-GeneralizedLedgerKey
+InternalLedgerKey
 sponsorshipCounterKey(AccountID const& sponsoringID)
 {
-    GeneralizedLedgerKey gkey(GeneralizedLedgerEntryType::SPONSORSHIP_COUNTER);
+    InternalLedgerKey gkey(InternalLedgerEntryType::SPONSORSHIP_COUNTER);
     gkey.sponsorshipCounterKey().sponsoringID = sponsoringID;
     return gkey;
 }

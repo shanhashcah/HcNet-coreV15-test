@@ -39,7 +39,7 @@ compile_commands.json
 
 /INSTALL
 
-/src/main/StellarCoreVersion.cpp
+/src/main/HcNetCoreVersion.cpp
 /src/xdr/*.h
 /Makefile
 /Makefile.in

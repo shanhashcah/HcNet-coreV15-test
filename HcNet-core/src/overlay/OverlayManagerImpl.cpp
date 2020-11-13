@@ -1,4 +1,4 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -619,10 +619,10 @@ OverlayManagerImpl::getConnectedPeer(PeerBareAddress const& address)
 }
 
 void
-OverlayManagerImpl::ledgerClosed(uint32_t lastClosedledgerSeq)
+OverlayManagerImpl::clearLedgersBelow(uint32_t ledgerSeq, uint32_t lclSeq)
 {
-    mFloodGate.clearBelow(lastClosedledgerSeq);
-    mSurveyManager->clearOldLedgers(lastClosedledgerSeq);
+    mFloodGate.clearBelow(ledgerSeq);
+    mSurveyManager->clearOldLedgers(lclSeq);
 }
 
 void
@@ -887,7 +887,7 @@ OverlayManagerImpl::shufflePeerList(std::vector<Peer::pointer>& peerList)
 }
 
 bool
-OverlayManagerImpl::recvFloodedMsgID(StellarMessage const& msg,
+OverlayManagerImpl::recvFloodedMsgID(HcNetMessage const& msg,
                                      Peer::pointer peer, Hash& msgID)
 {
     ZoneScoped;
@@ -902,7 +902,7 @@ OverlayManagerImpl::forgetFloodedMsg(Hash const& msgID)
 }
 
 void
-OverlayManagerImpl::broadcastMessage(StellarMessage const& msg, bool force)
+OverlayManagerImpl::broadcastMessage(HcNetMessage const& msg, bool force)
 {
     ZoneScoped;
     mOverlayMetrics.mMessagesBroadcast.Mark();
@@ -976,7 +976,7 @@ OverlayManagerImpl::isShuttingDown() const
 }
 
 void
-OverlayManagerImpl::recordMessageMetric(StellarMessage const& HcNetMsg,
+OverlayManagerImpl::recordMessageMetric(HcNetMessage const& HcNetMsg,
                                         Peer::pointer peer)
 {
     ZoneScoped;
@@ -1057,8 +1057,8 @@ OverlayManagerImpl::recordMessageMetric(StellarMessage const& HcNetMsg,
 }
 
 void
-OverlayManagerImpl::updateFloodRecord(StellarMessage const& oldMsg,
-                                      StellarMessage const& newMsg)
+OverlayManagerImpl::updateFloodRecord(HcNetMessage const& oldMsg,
+                                      HcNetMessage const& newMsg)
 {
     ZoneScoped;
     mFloodGate.updateRecord(oldMsg, newMsg);

@@ -1,4 +1,4 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -16,7 +16,7 @@
 #include "simulation/Simulation.h"
 #include "test/TestUtils.h"
 #include "test/test.h"
-#include "xdr/Stellar-types.h"
+#include "xdr/HcNet-types.h"
 
 namespace HcNet
 {
@@ -353,7 +353,7 @@ TEST_CASE("next peer strategy", "[overlay][ItemFetcher]")
         }
         SECTION("peer1 told us that it knows")
         {
-            StellarMessage msg(SCP_MESSAGE);
+            HcNetMessage msg(SCP_MESSAGE);
             msg.envelope() = hundredEnvelope1;
             auto index = sha256(xdr::xdr_to_opaque(msg));
             app->getOverlayManager().recvFloodedMsgID(msg, peer1, index);

@@ -1,6 +1,6 @@
 #pragma once
-#include "xdr/Stellar-ledger-entries.h"
-#include "xdr/Stellar-ledger.h"
-#include "xdr/Stellar-overlay.h"
-#include "xdr/Stellar-transaction.h"
-#include "xdr/Stellar-types.h"
+#include "xdr/HcNet-ledger-entries.h"
+#include "xdr/HcNet-ledger.h"
+#include "xdr/HcNet-overlay.h"
+#include "xdr/HcNet-transaction.h"
+#include "xdr/HcNet-types.h"

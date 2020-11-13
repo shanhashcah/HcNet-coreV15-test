@@ -1,4 +1,4 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -227,6 +227,16 @@ class OverlayManagerTests
     }
 
     void
+    crank(size_t n)
+    {
+        while (n != 0)
+        {
+            clock.crank(false);
+            n--;
+        }
+    }
+
+    void
     testBroadcast()
     {
         OverlayManagerStub& pm = app->getOverlayManager();
@@ -245,7 +255,7 @@ class OverlayManagerTests
         auto c = TestAccount{*app, getAccount("c")};
         auto d = TestAccount{*app, getAccount("d")};
 
-        StellarMessage AtoB = a.tx({payment(b, 10)})->toStellarMessage();
+        HcNetMessage AtoB = a.tx({payment(b, 10)})->toHcNetMessage();
         auto i = 0;
         for (auto p : pm.mOutboundPeers.mAuthenticated)
         {
@@ -255,19 +265,23 @@ class OverlayManagerTests
             }
         }
         pm.broadcastMessage(AtoB);
+        crank(10);
         std::vector<int> expected{1, 1, 0, 1, 1};
         REQUIRE(sentCounts(pm) == expected);
         pm.broadcastMessage(AtoB);
+        crank(10);
         REQUIRE(sentCounts(pm) == expected);
-        StellarMessage CtoD = c.tx({payment(d, 10)})->toStellarMessage();
+        HcNetMessage CtoD = c.tx({payment(d, 10)})->toHcNetMessage();
         pm.broadcastMessage(CtoD);
+        crank(10);
         std::vector<int> expectedFinal{2, 2, 1, 2, 2};
         REQUIRE(sentCounts(pm) == expectedFinal);
 
         // Test that we updating a flood record actually prevents re-broadcast
-        StellarMessage AtoC = a.tx({payment(c, 10)})->toStellarMessage();
+        HcNetMessage AtoC = a.tx({payment(c, 10)})->toHcNetMessage();
         pm.updateFloodRecord(AtoB, AtoC);
         pm.broadcastMessage(AtoC);
+        crank(10);
         REQUIRE(sentCounts(pm) == expectedFinal);
     }
 };

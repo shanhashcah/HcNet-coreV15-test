@@ -1,8 +1,9 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "overlay/TCPPeer.h"
+#include "crypto/CryptoError.h"
 #include "crypto/Curve25519.h"
 #include "database/Database.h"
 #include "main/Application.h"
@@ -14,7 +15,7 @@
 #include "overlay/OverlayManager.h"
 #include "overlay/OverlayMetrics.h"
 #include "overlay/PeerManager.h"
-#include "overlay/StellarXDR.h"
+#include "overlay/HcNetXDR.h"
 #include "util/GlobalChecks.h"
 #include "util/Logging.h"
 #include "xdrpp/marshal.h"
@@ -430,6 +431,23 @@ TCPPeer::noteFullyReadBody(size_t nbytes)
 }
 
 void
+TCPPeer::scheduleRead()
+{
+    // Post to the peer-specific Scheduler a call to ::startRead below;
+    // this will be throttled to try to balance input rates across peers.
+    ZoneScoped;
+    assertThreadIsMain();
+    if (shouldAbort())
+    {
+        return;
+    }
+    auto self = static_pointer_cast<TCPPeer>(shared_from_this());
+    self->getApp().postOnMainThread(
+        [self]() { self->startRead(); },
+        fmt::format("TCPPeer::startRead for {}", toString()));
+}
+
+void
 TCPPeer::startRead()
 {
     ZoneScoped;
@@ -441,8 +459,11 @@ TCPPeer::startRead()
 
     mIncomingHeader.clear();
 
-    CLOG(DEBUG, "Overlay") << "TCPPeer::startRead " << mSocket->in_avail()
-                           << " from " << toString();
+    if (Logging::logDebug("Overlay"))
+    {
+        CLOG(DEBUG, "Overlay") << "TCPPeer::startRead " << mSocket->in_avail()
+                               << " from " << toString();
+    }
 
     mIncomingHeader.resize(HDRSZ);
 
@@ -517,11 +538,10 @@ TCPPeer::startRead()
     }
     else
     {
-        // we have enough data but need to bounce on the main thread as we've
-        // done too much work already
-        auto self = static_pointer_cast<TCPPeer>(shared_from_this());
-        self->getApp().postOnMainThread([self]() { self->startRead(); },
-                                        "TCPPeer: startRead");
+        // If we get here it's because we broke out of the input loop above
+        // early (via shouldYield) which means it's time to bounce off a the
+        // per-peer scheduler queue to throttle further input.
+        scheduleRead();
     }
 }
 
@@ -555,6 +575,14 @@ void
 TCPPeer::connected()
 {
     startRead();
+}
+
+bool
+TCPPeer::sendQueueIsOverloaded() const
+{
+    auto now = mApp.getClock().now();
+    return (!mWriteQueue.empty() && (now - mWriteQueue.front().mEnqueuedTime) >
+                                        SCHEDULER_LATENCY_WINDOW);
 }
 
 void
@@ -608,7 +636,11 @@ TCPPeer::readBodyHandler(asio::error_code const& error,
         noteFullyReadBody(bytes_transferred);
         recvMessage();
         mIncomingHeader.clear();
-        startRead();
+        // Completing a startRead => readHeaderHandler => readBodyHandler
+        // sequence happens after the first read of a single large input-buffer
+        // worth of input. Even when we weren't preempted, we still bounce off
+        // the per-peer scheduler queue here, to balance input across peers.
+        scheduleRead();
     }
 }
 

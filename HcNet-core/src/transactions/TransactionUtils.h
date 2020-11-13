@@ -1,10 +1,10 @@
 #pragma once
 
-// Copyright 2018 Stellar Development Foundation and contributors. Licensed
+// Copyright 2018 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
-#include "xdr/Stellar-ledger-entries.h"
+#include "xdr/HcNet-ledger-entries.h"
 #include <algorithm>
 
 namespace HcNet
@@ -17,7 +17,7 @@ class AbstractLedgerTxn;
 class LedgerTxnEntry;
 class LedgerTxnHeader;
 class TrustLineWrapper;
-class GeneralizedLedgerKey;
+class InternalLedgerKey;
 struct LedgerHeader;
 struct LedgerKey;
 struct TransactionEnvelope;
@@ -47,8 +47,8 @@ LedgerKey trustlineKey(AccountID const& accountID, Asset const& asset);
 LedgerKey offerKey(AccountID const& sellerID, uint64_t offerID);
 LedgerKey dataKey(AccountID const& accountID, std::string const& dataName);
 LedgerKey claimableBalanceKey(ClaimableBalanceID const& balanceID);
-GeneralizedLedgerKey sponsorshipKey(AccountID const& sponsoredID);
-GeneralizedLedgerKey sponsorshipCounterKey(AccountID const& sponsoringID);
+InternalLedgerKey sponsorshipKey(AccountID const& sponsoredID);
+InternalLedgerKey sponsorshipCounterKey(AccountID const& sponsoringID);
 
 uint32_t const FIRST_PROTOCOL_SUPPORTING_OPERATION_LIMITS = 11;
 uint32_t const ACCOUNT_SUBENTRY_LIMIT = 1000;

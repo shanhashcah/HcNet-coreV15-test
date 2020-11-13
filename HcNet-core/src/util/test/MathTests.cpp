@@ -1,4 +1,4 @@
-// Copyright 2020 Stellar Development Foundation and contributors. Licensed
+// Copyright 2020 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -28,7 +28,9 @@ TEST_CASE("k_means", "[kmeans][!hide]")
             for (auto const& p : points)
             {
                 auto closest = closest_cluster(p, kMeans);
-                curr += std::pow(std::fabs(closest - p), 2);
+                auto d2 = closest - p;
+                d2 *= d2;
+                curr += d2;
             }
 
             if (curr < currentBest)

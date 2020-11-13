@@ -1,6 +1,6 @@
 #pragma once
 
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -44,6 +44,9 @@ class Slot : public std::enable_shared_from_this<Slot>
 
     // true if the Slot was fully validated
     bool mFullyValidated;
+
+    // true if we heard from a v-blocking set
+    bool mGotVBlocking;
 
   public:
     Slot(uint64 slotIndex, SCP& SCP);
@@ -137,6 +140,12 @@ class Slot : public std::enable_shared_from_this<Slot>
         return mStatementsHistory.size();
     }
 
+    bool
+    gotVBlocking() const
+    {
+        return mGotVBlocking;
+    }
+
     // returns information about the local state in JSON format
     // including historical statements if available
     Json::Value getJsonInfo(bool fullKeys = false);
@@ -182,6 +191,7 @@ class Slot : public std::enable_shared_from_this<Slot>
 
   protected:
     std::vector<SCPEnvelope> getEntireCurrentState();
+    void maybeSetGotVBlocking();
     friend class TestSCP;
 };
 }

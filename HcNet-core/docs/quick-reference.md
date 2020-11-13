@@ -296,7 +296,7 @@ TransactionResult = {
 
 You can sign transactions with the `sign-transaction` command.
 
-You can generate a new Stellar public/private key with the `gen-seed` command.
+You can generate a new HcNet public/private key with the `gen-seed` command.
 
 ```
 HcNet-core.exe gen-seed

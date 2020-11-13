@@ -236,7 +236,7 @@ getSecureCreds(std::string const& prompt)
     SecureZeroMemory(pszPwd, sizeof(pszPwd));
     dwErr = CredUIPromptForCredentials(
         &cui,                              // CREDUI_INFO structure
-        TEXT("Stellar"),                   // Target for credentials
+        TEXT("HcNet"),                   // Target for credentials
                                            //   (usually a server)
         NULL,                              // Reserved
         0,                                 // Reason

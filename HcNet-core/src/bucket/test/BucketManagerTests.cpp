@@ -1,4 +1,4 @@
-// Copyright 2019 Stellar Development Foundation and contributors. Licensed
+// Copyright 2019 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -164,7 +164,7 @@ closeLedger(Application& app)
         << " with lcl=" << hexAbbrev(lcl.hash) << ", buckets="
         << hexAbbrev(app.getBucketManager().getBucketList().getHash());
     auto txSet = std::make_shared<TxSetFrame>(lcl.hash);
-    StellarValue sv(txSet->getContentsHash(), lcl.header.scpValue.closeTime,
+    HcNetValue sv(txSet->getContentsHash(), lcl.header.scpValue.closeTime,
                     emptyUpgradeSteps, HcNet_VALUE_BASIC);
     LedgerCloseData lcd(ledgerNum, txSet, sv);
     lm.valueExternalized(lcd);

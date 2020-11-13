@@ -1,13 +1,14 @@
-// Copyright 2015 Stellar Development Foundation and contributors. Licensed
+// Copyright 2015 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "historywork/GetAndUnzipRemoteFileWork.h"
-#include "history/FileTransferInfo.h"
+#include "history/HistoryArchive.h"
 #include "historywork/GetRemoteFileWork.h"
 #include "historywork/GunzipFileWork.h"
 #include "util/Logging.h"
 #include <Tracy.hpp>
+#include <fmt/format.h>
 
 namespace HcNet
 {
@@ -55,7 +56,14 @@ GetAndUnzipRemoteFileWork::doReset()
 void
 GetAndUnzipRemoteFileWork::onFailureRaise()
 {
-
+    // Blame archive if file was downloaded but failed validation
+    std::shared_ptr<HistoryArchive> ar = getArchive();
+    if (ar)
+    {
+        CLOG(ERROR, "History")
+            << fmt::format("Archive {}: file {} is maybe corrupt",
+                           ar->getName(), mFt.remoteName());
+    }
     mDownloadFailure.Mark();
     Work::onFailureRaise();
 }
@@ -153,5 +161,16 @@ GetAndUnzipRemoteFileWork::validateFile()
     }
 
     return true;
+}
+
+std::shared_ptr<HistoryArchive>
+GetAndUnzipRemoteFileWork::getArchive() const
+{
+    if (mGetRemoteFileWork &&
+        mGetRemoteFileWork->getState() == BasicWork::State::WORK_SUCCESS)
+    {
+        return mGetRemoteFileWork->getCurrentArchive();
+    }
+    return nullptr;
 }
 }

@@ -1,11 +1,11 @@
-// Copyright 2015 Stellar Development Foundation and contributors. Licensed
+// Copyright 2015 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #pragma once
 
 #include "work/Work.h"
-#include "xdr/Stellar-types.h"
+#include "xdr/HcNet-types.h"
 
 namespace medida
 {
@@ -28,13 +28,16 @@ class VerifyBucketWork : public BasicWork
     void adoptBucket();
     void spawnVerifier();
 
+    OnFailureCallback mOnFailure;
+
     medida::Meter& mVerifyBucketSuccess;
     medida::Meter& mVerifyBucketFailure;
 
   public:
     VerifyBucketWork(Application& app,
                      std::map<std::string, std::shared_ptr<Bucket>>& buckets,
-                     std::string const& bucketFile, uint256 const& hash);
+                     std::string const& bucketFile, uint256 const& hash,
+                     OnFailureCallback cb);
     ~VerifyBucketWork() = default;
 
   protected:
@@ -44,5 +47,6 @@ class VerifyBucketWork : public BasicWork
     {
         return true;
     };
+    void onFailureRaise() override;
 };
 }

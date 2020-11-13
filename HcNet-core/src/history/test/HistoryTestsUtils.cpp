@@ -1,4 +1,4 @@
-// Copyright 2017 Stellar Development Foundation and contributors. Licensed
+// Copyright 2017 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -513,7 +513,7 @@ CatchupSimulation::generateRandomLedger(uint32_t version)
         upgrades.push_back(UpgradeType{v.begin(), v.end()});
     }
 
-    StellarValue sv(txSet->getContentsHash(), closeTime, upgrades,
+    HcNetValue sv(txSet->getContentsHash(), closeTime, upgrades,
                     HcNet_VALUE_BASIC);
     mLedgerCloseDatas.emplace_back(ledgerSeq, txSet, sv);
     lm.closeLedger(mLedgerCloseDatas.back());

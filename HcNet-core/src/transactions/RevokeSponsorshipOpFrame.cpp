@@ -1,9 +1,9 @@
-// Copyright 2020 Stellar Development Foundation and contributors. Licensed
+// Copyright 2020 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "transactions/RevokeSponsorshipOpFrame.h"
-#include "ledger/GeneralizedLedgerEntry.h"
+#include "ledger/InternalLedgerEntry.h"
 #include "ledger/LedgerTxn.h"
 #include "ledger/LedgerTxnEntry.h"
 #include "transactions/SponsorshipUtils.h"

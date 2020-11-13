@@ -1,4 +1,4 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -72,7 +72,7 @@ TEST_CASE("ledgerheader", "[ledger]")
         TxSetFramePtr txSet = make_shared<TxSetFrame>(lastHash);
 
         // close this ledger
-        StellarValue sv(txSet->getContentsHash(), 1, emptyUpgradeSteps,
+        HcNetValue sv(txSet->getContentsHash(), 1, emptyUpgradeSteps,
                         HcNet_VALUE_BASIC);
         LedgerCloseData ledgerData(lcl.header.ledgerSeq + 1, txSet, sv);
         app->getLedgerManager().closeLedger(ledgerData);

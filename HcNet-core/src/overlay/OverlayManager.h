@@ -1,11 +1,11 @@
 #pragma once
 
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "overlay/Peer.h"
-#include "overlay/StellarXDR.h"
+#include "overlay/HcNetXDR.h"
 
 /**
  * OverlayManager maintains a virtual broadcast network, consisting of a set of
@@ -14,13 +14,13 @@
  * pairs (ItemFetcher).
  *
  * Overlay network messages are defined as the XDR structure type
- * `StellarMessage`, in the file src/xdr/Stellar-overlay.x
+ * `HcNetMessage`, in the file src/xdr/HcNet-overlay.x
  *
  * They are minimally framed using the Record Marking (RM) standard of RFC5531
  * (https://tools.ietf.org/html/rfc5531#page-16) and the RM-framed messages are
  * transmitted over TCP/IP sockets, between peers.
  *
- * The `StellarMessage` union contains 3 logically distinct kinds of message:
+ * The `HcNetMessage` union contains 3 logically distinct kinds of message:
  *
  *  - Messages directed to or from a specific peer, with or without a response:
  *    HELLO, GET_PEERS, PEERS, DONT_HAVE, ERROR_MSG
@@ -61,13 +61,13 @@ class OverlayManager
     static void dropAll(Database& db);
 
     // Flush all FloodGate and ItemFetcher state for ledgers older than
-    // `ledger`.
-    // This is called by LedgerManager when a ledger closes.
-    virtual void ledgerClosed(uint32_t lastClosedledgerSeq) = 0;
+    // `ledgerSeq`.
+    // This is called by Herder when ledger `lclSeq` closes.
+    virtual void clearLedgersBelow(uint32_t ledgerSeq, uint32_t lclSeq) = 0;
 
     // Send a given message to all peers, via the FloodGate. This is called by
     // Herder.
-    virtual void broadcastMessage(StellarMessage const& msg,
+    virtual void broadcastMessage(HcNetMessage const& msg,
                                   bool force = false) = 0;
 
     // Make a note in the FloodGate that a given peer has provided us with a
@@ -76,11 +76,11 @@ class OverlayManager
     // that, call broadcastMessage, above.
     // Returns true if this is a new message
     // fills msgID with msg's hash
-    virtual bool recvFloodedMsgID(StellarMessage const& msg, Peer::pointer peer,
+    virtual bool recvFloodedMsgID(HcNetMessage const& msg, Peer::pointer peer,
                                   Hash& msgID) = 0;
 
     bool
-    recvFloodedMsg(StellarMessage const& msg, Peer::pointer peer)
+    recvFloodedMsg(HcNetMessage const& msg, Peer::pointer peer)
     {
         Hash msgID;
         return recvFloodedMsgID(msg, peer, msgID);
@@ -182,11 +182,11 @@ class OverlayManager
 
     virtual bool isShuttingDown() const = 0;
 
-    virtual void recordMessageMetric(StellarMessage const& HcNetMsg,
+    virtual void recordMessageMetric(HcNetMessage const& HcNetMsg,
                                      Peer::pointer peer) = 0;
 
-    virtual void updateFloodRecord(StellarMessage const& oldMsg,
-                                   StellarMessage const& newMsg) = 0;
+    virtual void updateFloodRecord(HcNetMessage const& oldMsg,
+                                   HcNetMessage const& newMsg) = 0;
 
     virtual ~OverlayManager()
     {

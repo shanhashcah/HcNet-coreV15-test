@@ -1,4 +1,4 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -58,7 +58,7 @@ TransactionFrame::getFullHash() const
 {
     if (isZero(mFullHash))
     {
-        mFullHash = sha256(xdr::xdr_to_opaque(mEnvelope));
+        mFullHash = xdrSha256(mEnvelope);
     }
     return (mFullHash);
 }
@@ -787,8 +787,8 @@ TransactionFrame::applyOperations(SignatureChecker& signatureChecker,
                     auto glk = kv.first;
                     switch (glk.type())
                     {
-                    case GeneralizedLedgerEntryType::SPONSORSHIP:
-                    case GeneralizedLedgerEntryType::SPONSORSHIP_COUNTER:
+                    case InternalLedgerEntryType::SPONSORSHIP:
+                    case InternalLedgerEntryType::SPONSORSHIP_COUNTER:
                         getResult().result.code(txBAD_SPONSORSHIP);
                         return false;
                     default:
@@ -910,10 +910,10 @@ TransactionFrame::apply(Application& app, AbstractLedgerTxn& ltx,
     return apply(app, ltx, meta, true);
 }
 
-StellarMessage
-TransactionFrame::toStellarMessage() const
+HcNetMessage
+TransactionFrame::toHcNetMessage() const
 {
-    StellarMessage msg;
+    HcNetMessage msg;
     msg.type(TRANSACTION);
     msg.transaction() = mEnvelope;
     return msg;

@@ -1,12 +1,12 @@
-// Copyright 2016 Stellar Development Foundation and contributors. Licensed
+// Copyright 2016 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "Tracker.h"
 
 #include "OverlayMetrics.h"
+#include "crypto/BLAKE2.h"
 #include "crypto/Hex.h"
-#include "crypto/SHA.h"
 #include "herder/Herder.h"
 #include "main/Application.h"
 #include "medida/medida.h"
@@ -235,13 +235,15 @@ Tracker::listen(const SCPEnvelope& env)
         return;
     }
 
-    StellarMessage m;
+    HcNetMessage m;
     m.type(SCP_MESSAGE);
     m.envelope() = env;
 
-    // NB: hash here is of StellarMessage
-    mWaitingEnvelopes.push_back(
-        std::make_pair(sha256(xdr::xdr_to_opaque(m)), env));
+    // NB: hash here is BLAKE2 of HcNetMessage because that is
+    // what the floodmap is keyed by, and we're storing its keys
+    // in mWaitingEnvelopes, not the mItemHash that is the SHA256
+    // of the item being tracked.
+    mWaitingEnvelopes.push_back(std::make_pair(xdrBlake2(m), env));
 }
 
 void

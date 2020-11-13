@@ -1,4 +1,4 @@
-// Copyright 2019 Stellar Development Foundation and contributors. Licensed
+// Copyright 2019 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -51,8 +51,29 @@ DownloadApplyTxsWork::yieldMoreWork()
     auto const& hm = mApp.getHistoryManager();
     auto low = hm.firstLedgerInCheckpointContaining(mCheckpointToQueue);
     auto high = std::min(mCheckpointToQueue, mRange.last());
+
+    TmpDir const& dir = mDownloadDir;
+    uint32_t checkpoint = mCheckpointToQueue;
+    auto getFileWeak = std::weak_ptr<GetAndUnzipRemoteFileWork>(getAndUnzip);
+
+    OnFailureCallback cb = [getFileWeak, checkpoint, &dir]() {
+        auto getFile = getFileWeak.lock();
+        if (getFile)
+        {
+            auto archive = getFile->getArchive();
+            if (archive)
+            {
+                FileTransferInfo ti(dir, HISTORY_FILE_TYPE_TRANSACTIONS,
+                                    checkpoint);
+                CLOG(ERROR, "History")
+                    << fmt::format("Archive {} maybe contains corrupt file {}",
+                                   archive->getName(), ti.remoteName());
+            }
+        }
+    };
+
     auto apply = std::make_shared<ApplyCheckpointWork>(
-        mApp, mDownloadDir, LedgerRange::inclusive(low, high));
+        mApp, mDownloadDir, LedgerRange::inclusive(low, high), cb);
 
     std::vector<std::shared_ptr<BasicWork>> seq{getAndUnzip};
 

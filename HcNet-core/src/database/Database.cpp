@@ -1,4 +1,4 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -8,7 +8,7 @@
 #include "database/DatabaseTypeSpecificOperation.h"
 #include "main/Application.h"
 #include "main/Config.h"
-#include "overlay/StellarXDR.h"
+#include "overlay/HcNetXDR.h"
 #include "util/Decoder.h"
 #include "util/GlobalChecks.h"
 #include "util/Logging.h"
@@ -33,7 +33,7 @@
 #include "medida/counter.h"
 #include "medida/metrics_registry.h"
 #include "medida/timer.h"
-#include "xdr/Stellar-ledger-entries.h"
+#include "xdr/HcNet-ledger-entries.h"
 
 #include <lib/soci/src/backends/sqlite3/soci-sqlite3.h>
 #include <string>

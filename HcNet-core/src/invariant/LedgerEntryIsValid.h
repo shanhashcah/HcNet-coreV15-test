@@ -1,12 +1,12 @@
 #pragma once
 
-// Copyright 2017 Stellar Development Foundation and contributors. Licensed
+// Copyright 2017 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "invariant/Invariant.h"
-#include "ledger/GeneralizedLedgerEntry.h"
-#include "xdr/Stellar-ledger-entries.h"
+#include "ledger/InternalLedgerEntry.h"
+#include "xdr/HcNet-ledger-entries.h"
 #include <memory>
 
 namespace HcNet
@@ -33,10 +33,10 @@ class LedgerEntryIsValid : public Invariant
                           LedgerTxnDelta const& ltxDelta) override;
 
   private:
-    std::string checkIsValid(
-        GeneralizedLedgerEntry const& le,
-        std::shared_ptr<GeneralizedLedgerEntry const> const& genPrevious,
-        uint32_t ledgerSeq, uint32 version) const;
+    std::string
+    checkIsValid(InternalLedgerEntry const& le,
+                 std::shared_ptr<InternalLedgerEntry const> const& genPrevious,
+                 uint32_t ledgerSeq, uint32 version) const;
     std::string checkIsValid(LedgerEntry const& le, LedgerEntry const* previous,
                              uint32_t ledgerSeq, uint32 version) const;
     std::string checkIsValid(AccountEntry const& ae, uint32 version) const;

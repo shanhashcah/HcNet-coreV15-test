@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea for the HcNet-core implementation of the Stellar Protocol
+about: Suggest an idea for the HcNet-core implementation of the HcNet Protocol
 title: "[Short Description] (Version: [HcNet-core version])"
 labels: enhancement
 assignees: ''
@@ -19,11 +19,11 @@ We have a small community of people that manages issues, and we want to ensure t
 
 The HcNet-core issues repository is meant for reporting bugs and feature requests related to HcNet-core's implementation.
 
-If you have a question, we would recommend that you take a look at Stellar's [developer portal][1], where you'll find comprehensive documentation related to Stellar.
+If you have a question, we would recommend that you take a look at HcNet's [developer portal][1], where you'll find comprehensive documentation related to HcNet.
 
 If you can't find an answer to your question you can:
-* submit a question to [Stellar's Stack Exchange][2].
-* or ask one of [Stellar's communities][3].
+* submit a question to [HcNet's Stack Exchange][2].
+* or ask one of [HcNet's communities][3].
 
 [1]: https://www.HcNet.org/developers/
 [2]: https://HcNet.stackexchange.com/
@@ -31,10 +31,10 @@ If you can't find an answer to your question you can:
 
 ### I'd like to request new functionality in HcNet-core!
 
-First, you have to ask whether what you're trying to file is an issue related to Stellar's Protocol
+First, you have to ask whether what you're trying to file is an issue related to HcNet's Protocol
 OR if it's related to `HcNet-core`, the C++ implementation that's in this repository.
 
-Typically a request that changes how the core protocol works (such as adding a new operation, changing the way transactions work, etc) is best filed in the [Stellar Protocol repository][4].
+Typically a request that changes how the core protocol works (such as adding a new operation, changing the way transactions work, etc) is best filed in the [HcNet Protocol repository][4].
 
 However, if your change is related to the implementation (say you'd like to see a new command line
 flag or HTTP command added to HcNet-core), this is the place.

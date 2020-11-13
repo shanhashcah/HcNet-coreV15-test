@@ -2,9 +2,9 @@
 
 👍🎉 First off, thanks for taking the time to contribute! 🎉👍
 
-Check out the [Stellar Contribution
+Check out the [HcNet Contribution
 Guide](https://github.com/HcNet/.github/blob/master/CONTRIBUTING.md) for details on contributing
-to HcNet-core and Stellar's other repositories, especially with regard to our code of conduct and
+to HcNet-core and HcNet's other repositories, especially with regard to our code of conduct and
 contributor license agreement.
 
 ## Submitting Changes
@@ -17,7 +17,7 @@ Submit a pull request rebased on top of master
 At this point you're waiting on us. We like to at least comment on pull requests within one week
 (and, typically, three business days). We may suggest some changes or improvements or alternatives.
 
-## Stellar Core Contribution Specifics
+## HcNet Core Contribution Specifics
 
 ### General
 * Try to separate logically distinct changes into separate commits and thematically distinct

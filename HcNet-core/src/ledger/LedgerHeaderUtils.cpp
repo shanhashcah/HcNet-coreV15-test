@@ -1,4 +1,4 @@
-// Copyright 2018 Stellar Development Foundation and contributors. Licensed
+// Copyright 2018 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -117,7 +117,7 @@ loadByHash(Database& db, Hash const& hash)
     {
         auto lh = decodeFromData(headerEncoded);
         lhPtr = std::make_shared<LedgerHeader>(lh);
-        auto ledgerHash = sha256(xdr::xdr_to_opaque(lh));
+        auto ledgerHash = xdrSha256(lh);
         if (ledgerHash != hash)
         {
             throw std::runtime_error(
@@ -191,7 +191,7 @@ copyToStream(Database& db, soci::session& sess, uint32_t ledgerSeq,
     {
         LedgerHeaderHistoryEntry lhe;
         lhe.header = decodeFromData(headerEncoded);
-        lhe.hash = sha256(xdr::xdr_to_opaque(lhe.header));
+        lhe.hash = xdrSha256(lhe.header);
         CLOG(DEBUG, "Ledger")
             << "Streaming ledger-header " << lhe.header.ledgerSeq;
         headersOut.writeOne(lhe);

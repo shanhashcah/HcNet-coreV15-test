@@ -1,12 +1,12 @@
 #pragma once
 
-// Copyright 2018 Stellar Development Foundation and contributors. Licensed
+// Copyright 2018 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "crypto/ShortHash.h"
-#include "ledger/GeneralizedLedgerEntry.h"
-#include "xdr/Stellar-ledger.h"
+#include "ledger/InternalLedgerEntry.h"
+#include "xdr/HcNet-ledger.h"
 #include <functional>
 
 // implements a default hasher for "LedgerKey"
@@ -86,20 +86,20 @@ template <> class hash<HcNet::LedgerKey>
     }
 };
 
-template <> class hash<HcNet::GeneralizedLedgerKey>
+template <> class hash<HcNet::InternalLedgerKey>
 {
   public:
     size_t
-    operator()(HcNet::GeneralizedLedgerKey const& glk) const
+    operator()(HcNet::InternalLedgerKey const& glk) const
     {
         switch (glk.type())
         {
-        case HcNet::GeneralizedLedgerEntryType::LEDGER_ENTRY:
+        case HcNet::InternalLedgerEntryType::LEDGER_ENTRY:
             return hash<HcNet::LedgerKey>()(glk.ledgerKey());
-        case HcNet::GeneralizedLedgerEntryType::SPONSORSHIP:
+        case HcNet::InternalLedgerEntryType::SPONSORSHIP:
             return HcNet::shortHash::computeHash(HcNet::ByteSlice(
                 glk.sponsorshipKey().sponsoredID.ed25519().data(), 8));
-        case HcNet::GeneralizedLedgerEntryType::SPONSORSHIP_COUNTER:
+        case HcNet::InternalLedgerEntryType::SPONSORSHIP_COUNTER:
             return HcNet::shortHash::computeHash(HcNet::ByteSlice(
                 glk.sponsorshipCounterKey().sponsoringID.ed25519().data(), 8));
         default:

@@ -3,7 +3,7 @@
 #include "ledger/LedgerTxn.h"
 #include "util/XDROperators.h"
 #include "util/types.h"
-#include "xdr/Stellar-ledger-entries.h"
+#include "xdr/HcNet-ledger-entries.h"
 #include "xdrpp/marshal.h"
 #include <algorithm>
 
@@ -71,8 +71,8 @@ InMemoryLedgerTxnRoot::getInflationWinners(size_t maxWinners,
     return std::vector<InflationWinner>();
 }
 
-std::shared_ptr<GeneralizedLedgerEntry const>
-InMemoryLedgerTxnRoot::getNewestVersion(GeneralizedLedgerKey const& key) const
+std::shared_ptr<InternalLedgerEntry const>
+InMemoryLedgerTxnRoot::getNewestVersion(InternalLedgerKey const& key) const
 {
     return nullptr;
 }

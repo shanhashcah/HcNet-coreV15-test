@@ -1,10 +1,11 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "overlay/Peer.h"
 
 #include "BanManager.h"
+#include "crypto/CryptoError.h"
 #include "crypto/Hex.h"
 #include "crypto/Random.h"
 #include "crypto/SHA.h"
@@ -19,7 +20,7 @@
 #include "overlay/OverlayMetrics.h"
 #include "overlay/PeerAuth.h"
 #include "overlay/PeerManager.h"
-#include "overlay/StellarXDR.h"
+#include "overlay/HcNetXDR.h"
 #include "overlay/SurveyManager.h"
 #include "util/Decoder.h"
 #include "util/Logging.h"
@@ -72,7 +73,7 @@ Peer::sendHello()
     ZoneScoped;
     CLOG(DEBUG, "Overlay") << "Peer::sendHello to " << toString() << " @"
                            << mApp.getConfig().PEER_PORT;
-    StellarMessage msg;
+    HcNetMessage msg;
     msg.type(HELLO);
     Hello& elo = msg.hello();
     elo.ledgerVersion = mApp.getConfig().LEDGER_PROTOCOL_VERSION;
@@ -188,7 +189,7 @@ void
 Peer::sendAuth()
 {
     ZoneScoped;
-    StellarMessage msg;
+    HcNetMessage msg;
     msg.type(AUTH);
     sendMessage(msg);
 }
@@ -222,7 +223,7 @@ void
 Peer::sendDontHave(MessageType type, uint256 const& itemID)
 {
     ZoneScoped;
-    StellarMessage msg;
+    HcNetMessage msg;
     msg.type(DONT_HAVE);
     msg.dontHave().reqHash = itemID;
     msg.dontHave().type = type;
@@ -234,7 +235,7 @@ void
 Peer::sendSCPQuorumSet(SCPQuorumSetPtr qSet)
 {
     ZoneScoped;
-    StellarMessage msg;
+    HcNetMessage msg;
     msg.type(SCP_QUORUMSET);
     msg.qSet() = *qSet;
 
@@ -245,7 +246,7 @@ void
 Peer::sendGetTxSet(uint256 const& setID)
 {
     ZoneScoped;
-    StellarMessage newMsg;
+    HcNetMessage newMsg;
     newMsg.type(GET_TX_SET);
     newMsg.txSetHash() = setID;
 
@@ -256,7 +257,7 @@ void
 Peer::sendGetQuorumSet(uint256 const& setID)
 {
     ZoneScoped;
-    StellarMessage newMsg;
+    HcNetMessage newMsg;
     newMsg.type(GET_SCP_QUORUMSET);
     newMsg.qSetHash() = setID;
 
@@ -267,7 +268,7 @@ void
 Peer::sendGetPeers()
 {
     ZoneScoped;
-    StellarMessage newMsg;
+    HcNetMessage newMsg;
     newMsg.type(GET_PEERS);
 
     sendMessage(newMsg);
@@ -277,7 +278,7 @@ void
 Peer::sendGetScpState(uint32 ledgerSeq)
 {
     ZoneScoped;
-    StellarMessage newMsg;
+    HcNetMessage newMsg;
     newMsg.type(GET_SCP_STATE);
     newMsg.getSCPLedgerSeq() = ledgerSeq;
 
@@ -288,7 +289,7 @@ void
 Peer::sendPeers()
 {
     ZoneScoped;
-    StellarMessage newMsg;
+    HcNetMessage newMsg;
     newMsg.type(PEERS);
     uint32 maxPeerCount = std::min<uint32>(50, newMsg.peers().max_size());
 
@@ -312,7 +313,7 @@ void
 Peer::sendError(ErrorCode error, std::string const& message)
 {
     ZoneScoped;
-    StellarMessage m;
+    HcNetMessage m;
     m.type(ERROR_MSG);
     m.error().code = error;
     m.error().msg = message;
@@ -329,7 +330,7 @@ Peer::sendErrorAndDrop(ErrorCode error, std::string const& message,
 }
 
 std::string
-Peer::msgSummary(StellarMessage const& msg)
+Peer::msgSummary(HcNetMessage const& msg)
 {
     switch (msg.type())
     {
@@ -394,7 +395,7 @@ Peer::msgSummary(StellarMessage const& msg)
 }
 
 void
-Peer::sendMessage(StellarMessage const& msg, bool log)
+Peer::sendMessage(HcNetMessage const& msg, bool log)
 {
     ZoneScoped;
     if (log && Logging::logTrace("Overlay"))
@@ -403,6 +404,21 @@ Peer::sendMessage(StellarMessage const& msg, bool log)
             << "send: " << msgSummary(msg)
             << " to : " << mApp.getConfig().toShortString(mPeerID) << " @"
             << mApp.getConfig().PEER_PORT;
+    }
+
+    // There are really _two_ layers of queues, one in Scheduler for actions and
+    // one in Peer (and its subclasses) for outgoing writes. We enforce a
+    // similar load-shedding discipline here as in Scheduler: if there is more
+    // than the scheduler latency-window worth of material in the write queue,
+    // and we're being asked to add messages that are being generated _from_ a
+    // droppable action, we drop the message rather than enqueue it. This avoids
+    // growing our queues indefinitely.
+    if (mApp.getClock().currentSchedulerActionType() ==
+            Scheduler::ActionType::DROPPABLE_ACTION &&
+        sendQueueIsOverloaded())
+    {
+        getOverlayMetrics().mMessageDrop.Mark();
+        return;
     }
 
     switch (msg.type())
@@ -562,7 +578,7 @@ Peer::recvMessage(AuthenticatedMessage const& msg)
 }
 
 void
-Peer::recvMessage(StellarMessage const& HcNetMsg)
+Peer::recvMessage(HcNetMessage const& HcNetMsg)
 {
     ZoneScoped;
     if (shouldAbort())
@@ -618,7 +634,7 @@ Peer::recvMessage(StellarMessage const& HcNetMsg)
         fmt::format("Error RecvMessage T:{} cat:{} {} @{}", HcNetMsg.type(),
                     cat, toString(), mApp.getConfig().PEER_PORT);
 
-    mApp.postOnMainThread([ err, weak, sm = StellarMessage(HcNetMsg) ]() {
+    mApp.postOnMainThread([ err, weak, sm = HcNetMessage(HcNetMsg) ]() {
         auto self = weak.lock();
         if (self)
         {
@@ -644,7 +660,7 @@ Peer::recvMessage(StellarMessage const& HcNetMsg)
 }
 
 void
-Peer::recvRawMessage(StellarMessage const& HcNetMsg)
+Peer::recvRawMessage(HcNetMessage const& HcNetMsg)
 {
     ZoneScoped;
     auto peerStr = toString();
@@ -780,7 +796,7 @@ Peer::recvRawMessage(StellarMessage const& HcNetMsg)
 }
 
 void
-Peer::recvDontHave(StellarMessage const& msg)
+Peer::recvDontHave(HcNetMessage const& msg)
 {
     ZoneScoped;
     maybeProcessPingResponse(msg.dontHave().reqHash);
@@ -790,13 +806,13 @@ Peer::recvDontHave(StellarMessage const& msg)
 }
 
 void
-Peer::recvGetTxSet(StellarMessage const& msg)
+Peer::recvGetTxSet(HcNetMessage const& msg)
 {
     ZoneScoped;
     auto self = shared_from_this();
     if (auto txSet = mApp.getHerder().getTxSet(msg.txSetHash()))
     {
-        StellarMessage newMsg;
+        HcNetMessage newMsg;
         newMsg.type(TX_SET);
         txSet->toXDR(newMsg.txSet());
 
@@ -809,7 +825,7 @@ Peer::recvGetTxSet(StellarMessage const& msg)
 }
 
 void
-Peer::recvTxSet(StellarMessage const& msg)
+Peer::recvTxSet(HcNetMessage const& msg)
 {
     ZoneScoped;
     TxSetFrame frame(mApp.getNetworkID(), msg.txSet());
@@ -817,7 +833,7 @@ Peer::recvTxSet(StellarMessage const& msg)
 }
 
 void
-Peer::recvTransaction(StellarMessage const& msg)
+Peer::recvTransaction(HcNetMessage const& msg)
 {
     ZoneScoped;
     auto transaction = TransactionFrameBase::makeTransactionFromWire(
@@ -890,7 +906,7 @@ Peer::getPing() const
 }
 
 void
-Peer::recvGetSCPQuorumSet(StellarMessage const& msg)
+Peer::recvGetSCPQuorumSet(HcNetMessage const& msg)
 {
     ZoneScoped;
     maybeProcessPingResponse(msg.qSetHash());
@@ -911,15 +927,15 @@ Peer::recvGetSCPQuorumSet(StellarMessage const& msg)
     }
 }
 void
-Peer::recvSCPQuorumSet(StellarMessage const& msg)
+Peer::recvSCPQuorumSet(HcNetMessage const& msg)
 {
     ZoneScoped;
-    Hash hash = sha256(xdr::xdr_to_opaque(msg.qSet()));
+    Hash hash = xdrSha256(msg.qSet());
     mApp.getHerder().recvSCPQuorumSet(hash, msg.qSet());
 }
 
 void
-Peer::recvSCPMessage(StellarMessage const& msg)
+Peer::recvSCPMessage(HcNetMessage const& msg)
 {
     ZoneScoped;
     SCPEnvelope const& envelope = msg.envelope();
@@ -966,7 +982,7 @@ Peer::recvSCPMessage(StellarMessage const& msg)
 }
 
 void
-Peer::recvGetSCPState(StellarMessage const& msg)
+Peer::recvGetSCPState(HcNetMessage const& msg)
 {
     ZoneScoped;
     uint32 seq = msg.getSCPLedgerSeq();
@@ -974,7 +990,7 @@ Peer::recvGetSCPState(StellarMessage const& msg)
 }
 
 void
-Peer::recvError(StellarMessage const& msg)
+Peer::recvError(HcNetMessage const& msg)
 {
     ZoneScoped;
     std::string codeStr = "UNKNOWN";
@@ -1106,7 +1122,7 @@ Peer::recvHello(Hello const& elo)
         CLOG(DEBUG, "Overlay")
             << "Protocol = [" << mRemoteOverlayMinVersion << ","
             << mRemoteOverlayVersion << "] expected: ["
-            << mApp.getConfig().OVERLAY_PROTOCOL_VERSION << ","
+            << mApp.getConfig().OVERLAY_PROTOCOL_MIN_VERSION << ","
             << mApp.getConfig().OVERLAY_PROTOCOL_VERSION << "]";
         sendErrorAndDrop(ERR_CONF, "wrong protocol version", dropMode);
         return;
@@ -1180,7 +1196,7 @@ Peer::recvHello(Hello const& elo)
 }
 
 void
-Peer::recvAuth(StellarMessage const& msg)
+Peer::recvAuth(HcNetMessage const& msg)
 {
     ZoneScoped;
     if (mState != GOT_HELLO)
@@ -1220,14 +1236,14 @@ Peer::recvAuth(StellarMessage const& msg)
 }
 
 void
-Peer::recvGetPeers(StellarMessage const& msg)
+Peer::recvGetPeers(HcNetMessage const& msg)
 {
     ZoneScoped;
     sendPeers();
 }
 
 void
-Peer::recvPeers(StellarMessage const& msg)
+Peer::recvPeers(HcNetMessage const& msg)
 {
     ZoneScoped;
     for (auto const& peer : msg.peers())
@@ -1274,7 +1290,7 @@ Peer::recvPeers(StellarMessage const& msg)
 }
 
 void
-Peer::recvSurveyRequestMessage(StellarMessage const& msg)
+Peer::recvSurveyRequestMessage(HcNetMessage const& msg)
 {
     ZoneScoped;
     mApp.getOverlayManager().getSurveyManager().relayOrProcessRequest(
@@ -1282,7 +1298,7 @@ Peer::recvSurveyRequestMessage(StellarMessage const& msg)
 }
 
 void
-Peer::recvSurveyResponseMessage(StellarMessage const& msg)
+Peer::recvSurveyResponseMessage(HcNetMessage const& msg)
 {
     ZoneScoped;
     mApp.getOverlayManager().getSurveyManager().relayOrProcessResponse(

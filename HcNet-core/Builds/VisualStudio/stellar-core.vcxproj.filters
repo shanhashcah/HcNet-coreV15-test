@@ -339,7 +339,7 @@
     <ClCompile Include="..\..\src\invariant\LedgerEntryIsValid.cpp">
       <Filter>invariant</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\main\StellarCoreVersion.cpp">
+    <ClCompile Include="..\..\src\main\HcNetCoreVersion.cpp">
       <Filter>main\generated</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\invariant\LiabilitiesMatchOffers.cpp">
@@ -1137,6 +1137,12 @@
     <ClCompile Include="..\..\src\util\XDRCereal.cpp">
       <Filter>util</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\util\LogSlowExecution.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypto\BLAKE2.cpp">
+      <Filter>crypto</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\lib\util\easylogging++.h">
@@ -1265,22 +1271,22 @@
     <ClInclude Include="..\..\lib\util\basen.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="src\generated\xdr\Stellar-ledger.h">
+    <ClInclude Include="src\generated\xdr\HcNet-ledger.h">
       <Filter>xdr\generated</Filter>
     </ClInclude>
-    <ClInclude Include="src\generated\xdr\Stellar-ledger-entries.h">
+    <ClInclude Include="src\generated\xdr\HcNet-ledger-entries.h">
       <Filter>xdr\generated</Filter>
     </ClInclude>
-    <ClInclude Include="src\generated\xdr\Stellar-overlay.h">
+    <ClInclude Include="src\generated\xdr\HcNet-overlay.h">
       <Filter>xdr\generated</Filter>
     </ClInclude>
-    <ClInclude Include="src\generated\xdr\Stellar-SCP.h">
+    <ClInclude Include="src\generated\xdr\HcNet-SCP.h">
       <Filter>xdr\generated</Filter>
     </ClInclude>
-    <ClInclude Include="src\generated\xdr\Stellar-transaction.h">
+    <ClInclude Include="src\generated\xdr\HcNet-transaction.h">
       <Filter>xdr\generated</Filter>
     </ClInclude>
-    <ClInclude Include="src\generated\xdr\Stellar-types.h">
+    <ClInclude Include="src\generated\xdr\HcNet-types.h">
       <Filter>xdr\generated</Filter>
     </ClInclude>
     <ClInclude Include="..\..\lib\catch.hpp">
@@ -1619,7 +1625,7 @@
     <ClInclude Include="..\..\src\ledger\TrustLineWrapper.h">
       <Filter>ledger</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\main\StellarCoreVersion.h">
+    <ClInclude Include="..\..\src\main\HcNetCoreVersion.h">
       <Filter>main</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\main\Application.h">
@@ -1793,7 +1799,7 @@
     <ClInclude Include="..\..\src\overlay\RandomPeerSource.h">
       <Filter>overlay</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\overlay\StellarXDR.h">
+    <ClInclude Include="..\..\src\overlay\HcNetXDR.h">
       <Filter>overlay</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\overlay\TCPPeer.h">
@@ -1964,6 +1970,9 @@
     <ClInclude Include="..\..\src\util\XDRCereal.h">
       <Filter>util</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\crypto\BLAKE2.h">
+      <Filter>crypto</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\AUTHORS" />
@@ -2098,25 +2107,25 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\src\xdr\Stellar-ledger.x">
+    <CustomBuild Include="..\..\src\xdr\HcNet-ledger.x">
       <Filter>xdr</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\src\xdr\Stellar-transaction.x">
+    <CustomBuild Include="..\..\src\xdr\HcNet-transaction.x">
       <Filter>xdr</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\src\xdr\Stellar-types.x">
+    <CustomBuild Include="..\..\src\xdr\HcNet-types.x">
       <Filter>xdr</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\src\xdr\Stellar-overlay.x">
+    <CustomBuild Include="..\..\src\xdr\HcNet-overlay.x">
       <Filter>xdr</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\src\xdr\Stellar-ledger-entries.x">
+    <CustomBuild Include="..\..\src\xdr\HcNet-ledger-entries.x">
       <Filter>xdr</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\src\xdr\Stellar-SCP.x">
+    <CustomBuild Include="..\..\src\xdr\HcNet-SCP.x">
       <Filter>xdr</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\src\main\StellarCoreVersion.cpp.in">
+    <CustomBuild Include="..\..\src\main\HcNetCoreVersion.cpp.in">
       <Filter>main</Filter>
     </CustomBuild>
   </ItemGroup>

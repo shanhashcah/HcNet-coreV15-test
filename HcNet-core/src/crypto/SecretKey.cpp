@@ -1,12 +1,13 @@
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "crypto/SecretKey.h"
+#include "crypto/BLAKE2.h"
+#include "crypto/CryptoError.h"
 #include "crypto/Curve25519.h"
 #include "crypto/Hex.h"
 #include "crypto/KeyUtils.h"
-#include "crypto/SHA.h"
 #include "crypto/StrKey.h"
 #include "main/Config.h"
 #include "transactions/SignatureUtils.h"
@@ -44,7 +45,7 @@ verifySigCacheKey(PublicKey const& key, Signature const& signature,
 {
     assert(key.type() == PUBLIC_KEY_TYPE_ED25519);
 
-    SHA256 hasher;
+    BLAKE2 hasher;
     hasher.add(key.ed25519());
     hasher.add(signature);
     hasher.add(bin);

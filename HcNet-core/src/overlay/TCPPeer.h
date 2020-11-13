@@ -1,6 +1,6 @@
 #pragma once
 
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -44,6 +44,8 @@ class TCPPeer : public Peer
 
     size_t getIncomingMsgLength();
     virtual void connected() override;
+    void scheduleRead();
+    virtual bool sendQueueIsOverloaded() const override;
     void startRead();
 
     static constexpr size_t HDRSZ = 4;

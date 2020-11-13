@@ -1,7 +1,7 @@
 
 #pragma once
 
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -9,13 +9,13 @@
 #include "main/Application.h"
 #include "main/Config.h"
 #include "medida/medida.h"
-#include "overlay/StellarXDR.h"
+#include "overlay/HcNetXDR.h"
 #include "overlay/test/LoopbackPeer.h"
 #include "simulation/LoadGenerator.h"
 #include "test/TxTests.h"
 #include "util/Timer.h"
 #include "util/XDROperators.h"
-#include "xdr/Stellar-types.h"
+#include "xdr/HcNet-types.h"
 
 #define SIMULATION_CREATE_NODE(N) \
     const Hash v##N##VSeed = sha256("NODE_SEED_" #N); \

@@ -1,4 +1,4 @@
-// Copyright 2019 Stellar Development Foundation and contributors. Licensed
+// Copyright 2019 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -122,7 +122,7 @@ isBadTransactionFuzzerInput(Operation const& op)
 }
 
 bool
-isBadOverlayFuzzerInput(StellarMessage const& m)
+isBadOverlayFuzzerInput(HcNetMessage const& m)
 {
     // HELLO, AUTH and ERROR_MSG messages cause the connection between
     // the peers to drop. Since peer connections are only established
@@ -300,7 +300,7 @@ void
 OverlayFuzzer::inject(XDRInputFileStream& in)
 {
     // see note on TransactionFuzzer's tryRead above
-    auto tryRead = [&in](StellarMessage& m) {
+    auto tryRead = [&in](HcNetMessage& m) {
         try
         {
             return in.readOne(m);
@@ -312,7 +312,7 @@ OverlayFuzzer::inject(XDRInputFileStream& in)
         }
     };
 
-    StellarMessage msg;
+    HcNetMessage msg;
     while (tryRead(msg))
     {
         if (isBadOverlayFuzzerInput(msg))
@@ -358,8 +358,8 @@ OverlayFuzzer::genFuzz(std::string const& filename)
     XDROutputFileStream out(clock.getIOContext(),
                             /*doFsync=*/false);
     out.open(filename);
-    autocheck::generator<StellarMessage> gen;
-    StellarMessage m(gen(FUZZER_INITIAL_CORPUS_MESSAGE_GEN_UPPERBOUND));
+    autocheck::generator<HcNetMessage> gen;
+    HcNetMessage m(gen(FUZZER_INITIAL_CORPUS_MESSAGE_GEN_UPPERBOUND));
     while (isBadOverlayFuzzerInput(m))
     {
         m = gen(FUZZER_INITIAL_CORPUS_MESSAGE_GEN_UPPERBOUND);

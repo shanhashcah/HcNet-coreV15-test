@@ -19,11 +19,11 @@ We have a small community of people that manages issues, and we want to ensure t
 
 The HcNet-core issues repository is meant for reporting bugs and feature requests related to HcNet-core's implementation.
 
-If you have a question, we would recommend that you take a look at Stellar's [developer portal][1], where you'll find comprehensive documentation related to Stellar.
+If you have a question, we would recommend that you take a look at HcNet's [developer portal][1], where you'll find comprehensive documentation related to HcNet.
 
 If you can't find an answer to your question you can:
-* submit a question to [Stellar's Stack Exchange][2].
-* or ask one of [Stellar's communities][3].
+* submit a question to [HcNet's Stack Exchange][2].
+* or ask one of [HcNet's communities][3].
 
 [1]: https://www.HcNet.org/developers/
 [2]: https://HcNet.stackexchange.com/
@@ -31,7 +31,7 @@ If you can't find an answer to your question you can:
 
 ### I'd like to report a bug or feature request related to the documentation!
 
-First, consider that Stellar's documentation is spread across multiple repositories, and this repository only pertains to docs related to `HcNet-core`, i.e. if it's in the `docs` folder. Please check to see if the source of the document you're looking at resides in this repository *before filing an issue*. If you're not sure where the source for a piece of documentation on our website exists, or you're looking to make a general feature request, please file an issue in the [Stellar docs repository][4].
+First, consider that HcNet's documentation is spread across multiple repositories, and this repository only pertains to docs related to `HcNet-core`, i.e. if it's in the `docs` folder. Please check to see if the source of the document you're looking at resides in this repository *before filing an issue*. If you're not sure where the source for a piece of documentation on our website exists, or you're looking to make a general feature request, please file an issue in the [HcNet docs repository][4].
 
 [4]: https://github.com/HcNet/docs
 

@@ -78,7 +78,7 @@ Command options can only by placed after command.
   Option **--start-at-hash <HASH>** provides a (mandatory) hash for the ledger
   **N** specified by the **--start-at-ledger** option.
 * **sec-to-pub**:  Reads a secret key on standard input and outputs the
-  corresponding public key.  Both keys are in Stellar's standard
+  corresponding public key.  Both keys are in HcNet's standard
   base-32 ASCII format.
 * **sign-transaction <FILE-NAME>**:  Add a digital signature to a transaction
   envelope stored in binary format in <FILE-NAME>, and send the result to
@@ -89,7 +89,7 @@ Command options can only by placed after command.
   if the signing key appears to be coming from a terminal, HcNet-core
   disables echo. Note that if you do not have a HcNet_NETWORK_ID environment
   variable, then before this argument you must specify the --netid option. For
-  example, the production HcNet network is "`Public Global Stellar Network ;
+  example, the production HcNet network is "`Public Global HcNet Network ;
   September 2015`" while the test network is "`Test SDF Network ; September
   2015`".<br>
   Option --base64 alters the behavior to work on base64-encoded XDR rather than

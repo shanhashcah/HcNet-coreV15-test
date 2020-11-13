@@ -1,4 +1,4 @@
-// Copyright 2019 Stellar Development Foundation and contributors. Licensed
+// Copyright 2019 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -502,7 +502,7 @@ TxSimApplyTransactionsWork::onReset()
     // So we can do the same upgrade in both cases.
     if (header.maxTxSetSize < mMaxOperations || mUpgradeProtocol)
     {
-        StellarValue sv;
+        HcNetValue sv;
         if (header.maxTxSetSize < mMaxOperations)
         {
             LedgerUpgrade upgrade(LEDGER_UPGRADE_MAX_TX_SET_SIZE);
@@ -583,7 +583,7 @@ TxSimApplyTransactionsWork::onRun()
     auto txSet = std::make_shared<TxSimTxSetFrame>(
         mNetworkID, lclHeader.hash, transactions, mResults, mMultiplier);
 
-    StellarValue sv;
+    HcNetValue sv;
     sv.txSetHash = txSet->getContentsHash();
     sv.closeTime = header.scpValue.closeTime + 1;
     sv.upgrades.insert(sv.upgrades.begin(), upgrades.begin(), upgrades.end());

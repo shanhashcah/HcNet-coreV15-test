@@ -1,13 +1,13 @@
 #pragma once
 
-// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// Copyright 2014 HcNet Development Foundation and contributors. Licensed
 // under the Apache License, Version 2.0. See the COPYING file at the root
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "util/asio.h"
 #include "database/Database.h"
 #include "overlay/PeerBareAddress.h"
-#include "overlay/StellarXDR.h"
+#include "overlay/HcNetXDR.h"
 #include "util/NonCopyable.h"
 #include "util/Timer.h"
 #include "xdrpp/message.h"
@@ -149,29 +149,29 @@ class Peer : public std::enable_shared_from_this<Peer>,
     OverlayMetrics& getOverlayMetrics();
 
     bool shouldAbort() const;
-    void recvRawMessage(StellarMessage const& msg);
-    void recvMessage(StellarMessage const& msg);
+    void recvRawMessage(HcNetMessage const& msg);
+    void recvMessage(HcNetMessage const& msg);
     void recvMessage(AuthenticatedMessage const& msg);
     void recvMessage(xdr::msg_ptr const& xdrBytes);
 
-    virtual void recvError(StellarMessage const& msg);
+    virtual void recvError(HcNetMessage const& msg);
     void updatePeerRecordAfterEcho();
     void updatePeerRecordAfterAuthentication();
-    void recvAuth(StellarMessage const& msg);
-    void recvDontHave(StellarMessage const& msg);
-    void recvGetPeers(StellarMessage const& msg);
+    void recvAuth(HcNetMessage const& msg);
+    void recvDontHave(HcNetMessage const& msg);
+    void recvGetPeers(HcNetMessage const& msg);
     void recvHello(Hello const& elo);
-    void recvPeers(StellarMessage const& msg);
-    void recvSurveyRequestMessage(StellarMessage const& msg);
-    void recvSurveyResponseMessage(StellarMessage const& msg);
+    void recvPeers(HcNetMessage const& msg);
+    void recvSurveyRequestMessage(HcNetMessage const& msg);
+    void recvSurveyResponseMessage(HcNetMessage const& msg);
 
-    void recvGetTxSet(StellarMessage const& msg);
-    void recvTxSet(StellarMessage const& msg);
-    void recvTransaction(StellarMessage const& msg);
-    void recvGetSCPQuorumSet(StellarMessage const& msg);
-    void recvSCPQuorumSet(StellarMessage const& msg);
-    void recvSCPMessage(StellarMessage const& msg);
-    void recvGetSCPState(StellarMessage const& msg);
+    void recvGetTxSet(HcNetMessage const& msg);
+    void recvTxSet(HcNetMessage const& msg);
+    void recvTransaction(HcNetMessage const& msg);
+    void recvGetSCPQuorumSet(HcNetMessage const& msg);
+    void recvSCPQuorumSet(HcNetMessage const& msg);
+    void recvSCPMessage(HcNetMessage const& msg);
+    void recvGetSCPState(HcNetMessage const& msg);
 
     void sendHello();
     void sendAuth();
@@ -192,6 +192,11 @@ class Peer : public std::enable_shared_from_this<Peer>,
     connected()
     {
     }
+    virtual bool
+    sendQueueIsOverloaded() const
+    {
+        return false;
+    }
 
     virtual AuthCert getAuthCert();
 
@@ -211,7 +216,7 @@ class Peer : public std::enable_shared_from_this<Peer>,
         return mApp;
     }
 
-    std::string msgSummary(StellarMessage const& HcNetMsg);
+    std::string msgSummary(HcNetMessage const& HcNetMsg);
     void sendGetTxSet(uint256 const& setID);
     void sendGetQuorumSet(uint256 const& setID);
     void sendGetPeers();
@@ -219,7 +224,7 @@ class Peer : public std::enable_shared_from_this<Peer>,
     void sendErrorAndDrop(ErrorCode error, std::string const& message,
                           DropMode dropMode);
 
-    void sendMessage(StellarMessage const& msg, bool log = true);
+    void sendMessage(HcNetMessage const& msg, bool log = true);
 
     PeerRole
     getRole() const
