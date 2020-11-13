@@ -20,7 +20,8 @@ InferredQuorum::InferredQuorum(QuorumTracker::QuorumMap const& qmap)
         if (pair.second.mQuorumSet)
         {
             noteQset(*(pair.second.mQuorumSet));
-            Hash qSetHash = xdrSha256(*(pair.second.mQuorumSet));
+            Hash qSetHash =
+                sha256(xdr::xdr_to_opaque(*(pair.second.mQuorumSet)));
             noteQsetHash(pair.first, qSetHash);
         }
     }
@@ -74,7 +75,7 @@ InferredQuorum::noteQsetHash(PublicKey const& pk, Hash const& qsetHash)
 void
 InferredQuorum::noteQset(SCPQuorumSet const& qset)
 {
-    Hash qSetHash = xdrSha256(qset);
+    Hash qSetHash = sha256(xdr::xdr_to_opaque(qset));
     if (mQsets.find(qSetHash) == mQsets.end())
     {
         mQsets.insert(std::make_pair(qSetHash, qset));

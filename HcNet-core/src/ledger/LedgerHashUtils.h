@@ -5,7 +5,7 @@
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "crypto/ShortHash.h"
-#include "ledger/InternalLedgerEntry.h"
+#include "ledger/GeneralizedLedgerEntry.h"
 #include "xdr/HcNet-ledger.h"
 #include <functional>
 
@@ -86,20 +86,20 @@ template <> class hash<HcNet::LedgerKey>
     }
 };
 
-template <> class hash<HcNet::InternalLedgerKey>
+template <> class hash<HcNet::GeneralizedLedgerKey>
 {
   public:
     size_t
-    operator()(HcNet::InternalLedgerKey const& glk) const
+    operator()(HcNet::GeneralizedLedgerKey const& glk) const
     {
         switch (glk.type())
         {
-        case HcNet::InternalLedgerEntryType::LEDGER_ENTRY:
+        case HcNet::GeneralizedLedgerEntryType::LEDGER_ENTRY:
             return hash<HcNet::LedgerKey>()(glk.ledgerKey());
-        case HcNet::InternalLedgerEntryType::SPONSORSHIP:
+        case HcNet::GeneralizedLedgerEntryType::SPONSORSHIP:
             return HcNet::shortHash::computeHash(HcNet::ByteSlice(
                 glk.sponsorshipKey().sponsoredID.ed25519().data(), 8));
-        case HcNet::InternalLedgerEntryType::SPONSORSHIP_COUNTER:
+        case HcNet::GeneralizedLedgerEntryType::SPONSORSHIP_COUNTER:
             return HcNet::shortHash::computeHash(HcNet::ByteSlice(
                 glk.sponsorshipCounterKey().sponsoringID.ed25519().data(), 8));
         default:

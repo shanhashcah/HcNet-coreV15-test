@@ -26,7 +26,6 @@ struct OverlayMetrics
     OverlayMetrics(Application& app);
     medida::Meter& mMessageRead;
     medida::Meter& mMessageWrite;
-    medida::Meter& mMessageDrop;
     medida::Meter& mAsyncRead;
     medida::Meter& mAsyncWrite;
     medida::Meter& mByteRead;

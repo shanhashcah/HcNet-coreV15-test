@@ -4,7 +4,6 @@
 
 #include "crypto/SHA.h"
 #include "crypto/ByteSlice.h"
-#include "crypto/CryptoError.h"
 #include "crypto/Curve25519.h"
 #include "util/NonCopyable.h"
 #include <Tracy.hpp>

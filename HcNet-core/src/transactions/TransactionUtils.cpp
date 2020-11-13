@@ -4,7 +4,7 @@
 
 #include "transactions/TransactionUtils.h"
 #include "crypto/SecretKey.h"
-#include "ledger/InternalLedgerEntry.h"
+#include "ledger/GeneralizedLedgerEntry.h"
 #include "ledger/LedgerTxn.h"
 #include "ledger/LedgerTxnEntry.h"
 #include "ledger/LedgerTxnHeader.h"
@@ -146,18 +146,18 @@ claimableBalanceKey(ClaimableBalanceID const& balanceID)
     return key;
 }
 
-InternalLedgerKey
+GeneralizedLedgerKey
 sponsorshipKey(AccountID const& sponsoredID)
 {
-    InternalLedgerKey gkey(InternalLedgerEntryType::SPONSORSHIP);
+    GeneralizedLedgerKey gkey(GeneralizedLedgerEntryType::SPONSORSHIP);
     gkey.sponsorshipKey().sponsoredID = sponsoredID;
     return gkey;
 }
 
-InternalLedgerKey
+GeneralizedLedgerKey
 sponsorshipCounterKey(AccountID const& sponsoringID)
 {
-    InternalLedgerKey gkey(InternalLedgerEntryType::SPONSORSHIP_COUNTER);
+    GeneralizedLedgerKey gkey(GeneralizedLedgerEntryType::SPONSORSHIP_COUNTER);
     gkey.sponsorshipCounterKey().sponsoringID = sponsoringID;
     return gkey;
 }

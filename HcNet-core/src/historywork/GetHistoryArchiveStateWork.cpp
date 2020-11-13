@@ -34,12 +34,6 @@ GetHistoryArchiveStateWork::GetHistoryArchiveStateWork(
 {
 }
 
-static bool
-isWellKnown(uint32_t seq)
-{
-    return seq == 0;
-}
-
 BasicWork::State
 GetHistoryArchiveStateWork::doWork()
 {
@@ -47,7 +41,6 @@ GetHistoryArchiveStateWork::doWork()
     if (mGetRemoteFile)
     {
         auto state = mGetRemoteFile->getState();
-        auto archive = mGetRemoteFile->getCurrentArchive();
         if (state == State::WORK_SUCCESS)
         {
             try
@@ -64,23 +57,6 @@ GetHistoryArchiveStateWork::doWork()
                 CLOG(ERROR, "History") << "OR";
                 CLOG(ERROR, "History") << UPGRADE_HcNet_CORE;
                 return State::WORK_FAILURE;
-            }
-        }
-        else if (state == State::WORK_FAILURE && archive)
-        {
-            if (isWellKnown(mSeq))
-            {
-                // Archive is corrupt if it's missing a well-known file
-                CLOG(ERROR, "History") << fmt::format(
-                    "Could not download {} file: corrupt archive {}",
-                    HistoryArchiveState::wellKnownRemoteName(),
-                    archive->getName());
-            }
-            else
-            {
-                CLOG(ERROR, "History") << fmt::format(
-                    "Missing HAS for ledger {}: maybe stale archive {}",
-                    std::to_string(mSeq), archive->getName());
             }
         }
         return state;
@@ -114,8 +90,8 @@ GetHistoryArchiveStateWork::onSuccess()
 std::string
 GetHistoryArchiveStateWork::getRemoteName() const
 {
-    return isWellKnown(mSeq) ? HistoryArchiveState::wellKnownRemoteName()
-                             : HistoryArchiveState::remoteName(mSeq);
+    return mSeq == 0 ? HistoryArchiveState::wellKnownRemoteName()
+                     : HistoryArchiveState::remoteName(mSeq);
 }
 
 std::string

@@ -2,7 +2,7 @@
 // connect.hpp
 // ~~~~~~~~~~~
 //
-// Copyright (c) 2003-2020 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2019 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -665,16 +665,13 @@ Iterator connect(basic_socket<Protocol, Executor>& s,
  *   // ...
  * } @endcode
  */
-template <typename Protocol, typename Executor, typename EndpointSequence,
-    ASIO_COMPLETION_TOKEN_FOR(void (asio::error_code,
-      typename Protocol::endpoint)) RangeConnectHandler
-        ASIO_DEFAULT_COMPLETION_TOKEN_TYPE(Executor)>
-ASIO_INITFN_AUTO_RESULT_TYPE(RangeConnectHandler,
+template <typename Protocol, typename Executor,
+    typename EndpointSequence, typename RangeConnectHandler>
+ASIO_INITFN_RESULT_TYPE(RangeConnectHandler,
     void (asio::error_code, typename Protocol::endpoint))
 async_connect(basic_socket<Protocol, Executor>& s,
     const EndpointSequence& endpoints,
-    ASIO_MOVE_ARG(RangeConnectHandler) handler
-      ASIO_DEFAULT_COMPLETION_TOKEN(Executor),
+    ASIO_MOVE_ARG(RangeConnectHandler) handler,
     typename enable_if<is_endpoint_sequence<
         EndpointSequence>::value>::type* = 0);
 
@@ -714,15 +711,12 @@ async_connect(basic_socket<Protocol, Executor>& s,
  * Iterator represents the end of the sequence. This is a valid assumption for
  * iterator types such as @c asio::ip::tcp::resolver::iterator.
  */
-template <typename Protocol, typename Executor, typename Iterator,
-    ASIO_COMPLETION_TOKEN_FOR(void (asio::error_code,
-      Iterator)) IteratorConnectHandler
-        ASIO_DEFAULT_COMPLETION_TOKEN_TYPE(Executor)>
-ASIO_INITFN_AUTO_RESULT_TYPE(IteratorConnectHandler,
+template <typename Protocol, typename Executor,
+    typename Iterator, typename IteratorConnectHandler>
+ASIO_INITFN_RESULT_TYPE(IteratorConnectHandler,
     void (asio::error_code, Iterator))
 async_connect(basic_socket<Protocol, Executor>& s, Iterator begin,
-    ASIO_MOVE_ARG(IteratorConnectHandler) handler
-      ASIO_DEFAULT_COMPLETION_TOKEN(Executor),
+    ASIO_MOVE_ARG(IteratorConnectHandler) handler,
     typename enable_if<!is_endpoint_sequence<Iterator>::value>::type* = 0);
 #endif // !defined(ASIO_NO_DEPRECATED)
 
@@ -775,15 +769,12 @@ async_connect(basic_socket<Protocol, Executor>& s, Iterator begin,
  *   // ...
  * } @endcode
  */
-template <typename Protocol, typename Executor, typename Iterator,
-    ASIO_COMPLETION_TOKEN_FOR(void (asio::error_code,
-      Iterator)) IteratorConnectHandler
-        ASIO_DEFAULT_COMPLETION_TOKEN_TYPE(Executor)>
-ASIO_INITFN_AUTO_RESULT_TYPE(IteratorConnectHandler,
+template <typename Protocol, typename Executor,
+    typename Iterator, typename IteratorConnectHandler>
+ASIO_INITFN_RESULT_TYPE(IteratorConnectHandler,
     void (asio::error_code, Iterator))
 async_connect(basic_socket<Protocol, Executor>& s, Iterator begin, Iterator end,
-    ASIO_MOVE_ARG(IteratorConnectHandler) handler
-      ASIO_DEFAULT_COMPLETION_TOKEN(Executor));
+    ASIO_MOVE_ARG(IteratorConnectHandler) handler);
 
 /// Asynchronously establishes a socket connection by trying each endpoint in a
 /// sequence.
@@ -880,17 +871,13 @@ async_connect(basic_socket<Protocol, Executor>& s, Iterator begin, Iterator end,
  *   }
  * } @endcode
  */
-template <typename Protocol, typename Executor,
-    typename EndpointSequence, typename ConnectCondition,
-    ASIO_COMPLETION_TOKEN_FOR(void (asio::error_code,
-      typename Protocol::endpoint)) RangeConnectHandler
-        ASIO_DEFAULT_COMPLETION_TOKEN_TYPE(Executor)>
-ASIO_INITFN_AUTO_RESULT_TYPE(RangeConnectHandler,
+template <typename Protocol, typename Executor, typename EndpointSequence,
+    typename ConnectCondition, typename RangeConnectHandler>
+ASIO_INITFN_RESULT_TYPE(RangeConnectHandler,
     void (asio::error_code, typename Protocol::endpoint))
 async_connect(basic_socket<Protocol, Executor>& s,
     const EndpointSequence& endpoints, ConnectCondition connect_condition,
-    ASIO_MOVE_ARG(RangeConnectHandler) handler
-      ASIO_DEFAULT_COMPLETION_TOKEN(Executor),
+    ASIO_MOVE_ARG(RangeConnectHandler) handler,
     typename enable_if<is_endpoint_sequence<
         EndpointSequence>::value>::type* = 0);
 
@@ -941,17 +928,13 @@ async_connect(basic_socket<Protocol, Executor>& s,
  * Iterator represents the end of the sequence. This is a valid assumption for
  * iterator types such as @c asio::ip::tcp::resolver::iterator.
  */
-template <typename Protocol, typename Executor,
-    typename Iterator, typename ConnectCondition,
-    ASIO_COMPLETION_TOKEN_FOR(void (asio::error_code,
-      Iterator)) IteratorConnectHandler
-        ASIO_DEFAULT_COMPLETION_TOKEN_TYPE(Executor)>
-ASIO_INITFN_AUTO_RESULT_TYPE(IteratorConnectHandler,
+template <typename Protocol, typename Executor, typename Iterator,
+    typename ConnectCondition, typename IteratorConnectHandler>
+ASIO_INITFN_RESULT_TYPE(IteratorConnectHandler,
     void (asio::error_code, Iterator))
 async_connect(basic_socket<Protocol, Executor>& s, Iterator begin,
     ConnectCondition connect_condition,
-    ASIO_MOVE_ARG(IteratorConnectHandler) handler
-      ASIO_DEFAULT_COMPLETION_TOKEN(Executor),
+    ASIO_MOVE_ARG(IteratorConnectHandler) handler,
     typename enable_if<!is_endpoint_sequence<Iterator>::value>::type* = 0);
 #endif // !defined(ASIO_NO_DEPRECATED)
 
@@ -1053,17 +1036,13 @@ async_connect(basic_socket<Protocol, Executor>& s, Iterator begin,
  *   }
  * } @endcode
  */
-template <typename Protocol, typename Executor,
-    typename Iterator, typename ConnectCondition,
-    ASIO_COMPLETION_TOKEN_FOR(void (asio::error_code,
-      Iterator)) IteratorConnectHandler
-        ASIO_DEFAULT_COMPLETION_TOKEN_TYPE(Executor)>
-ASIO_INITFN_AUTO_RESULT_TYPE(IteratorConnectHandler,
+template <typename Protocol, typename Executor, typename Iterator,
+    typename ConnectCondition, typename IteratorConnectHandler>
+ASIO_INITFN_RESULT_TYPE(IteratorConnectHandler,
     void (asio::error_code, Iterator))
 async_connect(basic_socket<Protocol, Executor>& s, Iterator begin,
     Iterator end, ConnectCondition connect_condition,
-    ASIO_MOVE_ARG(IteratorConnectHandler) handler
-      ASIO_DEFAULT_COMPLETION_TOKEN(Executor));
+    ASIO_MOVE_ARG(IteratorConnectHandler) handler);
 
 /*@}*/
 

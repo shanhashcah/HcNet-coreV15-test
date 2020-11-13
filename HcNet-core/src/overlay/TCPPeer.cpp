@@ -3,7 +3,6 @@
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "overlay/TCPPeer.h"
-#include "crypto/CryptoError.h"
 #include "crypto/Curve25519.h"
 #include "database/Database.h"
 #include "main/Application.h"
@@ -431,23 +430,6 @@ TCPPeer::noteFullyReadBody(size_t nbytes)
 }
 
 void
-TCPPeer::scheduleRead()
-{
-    // Post to the peer-specific Scheduler a call to ::startRead below;
-    // this will be throttled to try to balance input rates across peers.
-    ZoneScoped;
-    assertThreadIsMain();
-    if (shouldAbort())
-    {
-        return;
-    }
-    auto self = static_pointer_cast<TCPPeer>(shared_from_this());
-    self->getApp().postOnMainThread(
-        [self]() { self->startRead(); },
-        fmt::format("TCPPeer::startRead for {}", toString()));
-}
-
-void
 TCPPeer::startRead()
 {
     ZoneScoped;
@@ -459,11 +441,8 @@ TCPPeer::startRead()
 
     mIncomingHeader.clear();
 
-    if (Logging::logDebug("Overlay"))
-    {
-        CLOG(DEBUG, "Overlay") << "TCPPeer::startRead " << mSocket->in_avail()
-                               << " from " << toString();
-    }
+    CLOG(DEBUG, "Overlay") << "TCPPeer::startRead " << mSocket->in_avail()
+                           << " from " << toString();
 
     mIncomingHeader.resize(HDRSZ);
 
@@ -538,10 +517,11 @@ TCPPeer::startRead()
     }
     else
     {
-        // If we get here it's because we broke out of the input loop above
-        // early (via shouldYield) which means it's time to bounce off a the
-        // per-peer scheduler queue to throttle further input.
-        scheduleRead();
+        // we have enough data but need to bounce on the main thread as we've
+        // done too much work already
+        auto self = static_pointer_cast<TCPPeer>(shared_from_this());
+        self->getApp().postOnMainThread([self]() { self->startRead(); },
+                                        "TCPPeer: startRead");
     }
 }
 
@@ -575,14 +555,6 @@ void
 TCPPeer::connected()
 {
     startRead();
-}
-
-bool
-TCPPeer::sendQueueIsOverloaded() const
-{
-    auto now = mApp.getClock().now();
-    return (!mWriteQueue.empty() && (now - mWriteQueue.front().mEnqueuedTime) >
-                                        SCHEDULER_LATENCY_WINDOW);
 }
 
 void
@@ -636,11 +608,7 @@ TCPPeer::readBodyHandler(asio::error_code const& error,
         noteFullyReadBody(bytes_transferred);
         recvMessage();
         mIncomingHeader.clear();
-        // Completing a startRead => readHeaderHandler => readBodyHandler
-        // sequence happens after the first read of a single large input-buffer
-        // worth of input. Even when we weren't preempted, we still bounce off
-        // the per-peer scheduler queue here, to balance input across peers.
-        scheduleRead();
+        startRead();
     }
 }
 

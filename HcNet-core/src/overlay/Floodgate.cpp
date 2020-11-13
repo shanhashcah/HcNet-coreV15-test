@@ -3,8 +3,8 @@
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "overlay/Floodgate.h"
-#include "crypto/BLAKE2.h"
 #include "crypto/Hex.h"
+#include "crypto/SHA.h"
 #include "herder/Herder.h"
 #include "main/Application.h"
 #include "medida/counter.h"
@@ -14,7 +14,6 @@
 #include "util/XDROperators.h"
 #include "xdrpp/marshal.h"
 #include <Tracy.hpp>
-#include <fmt/format.h>
 
 namespace HcNet
 {
@@ -38,12 +37,13 @@ Floodgate::Floodgate(Application& app)
 
 // remove old flood records
 void
-Floodgate::clearBelow(uint32_t maxLedger)
+Floodgate::clearBelow(uint32_t currentLedger)
 {
     ZoneScoped;
     for (auto it = mFloodMap.cbegin(); it != mFloodMap.cend();)
     {
-        if (it->second->mLedgerSeq < maxLedger)
+        // give one ledger of leeway
+        if (it->second->mLedgerSeq + 10 < currentLedger)
         {
             it = mFloodMap.erase(it);
         }
@@ -59,7 +59,7 @@ bool
 Floodgate::addRecord(HcNetMessage const& msg, Peer::pointer peer, Hash& index)
 {
     ZoneScoped;
-    index = xdrBlake2(msg);
+    index = sha256(xdr::xdr_to_opaque(msg));
     if (mShuttingDown)
     {
         return false;
@@ -90,7 +90,7 @@ Floodgate::broadcast(HcNetMessage const& msg, bool force)
     {
         return;
     }
-    Hash index = xdrBlake2(msg);
+    Hash index = sha256(xdr::xdr_to_opaque(msg));
 
     FloodRecord::pointer fr;
     auto result = mFloodMap.find(index);
@@ -112,25 +112,13 @@ Floodgate::broadcast(HcNetMessage const& msg, bool force)
     auto peers = mApp.getOverlayManager().getAuthenticatedPeers();
 
     bool log = true;
-    std::shared_ptr<HcNetMessage> smsg =
-        std::make_shared<HcNetMessage>(msg);
     for (auto peer : peers)
     {
         assert(peer.second->isAuthenticated());
         if (peersTold.find(peer.second->toString()) == peersTold.end())
         {
             mSendFromBroadcast.Mark();
-            std::weak_ptr<Peer> weak(
-                std::static_pointer_cast<Peer>(peer.second));
-            mApp.postOnMainThread(
-                [smsg, weak, log]() {
-                    auto strong = weak.lock();
-                    if (strong)
-                    {
-                        strong->sendMessage(*smsg, log);
-                    }
-                },
-                fmt::format("broadcast to {}", peer.second->toString()));
+            peer.second->sendMessage(msg, log);
             peersTold.insert(peer.second->toString());
             log = false;
         }
@@ -177,8 +165,8 @@ Floodgate::updateRecord(HcNetMessage const& oldMsg,
                         HcNetMessage const& newMsg)
 {
     ZoneScoped;
-    Hash oldHash = xdrBlake2(oldMsg);
-    Hash newHash = xdrBlake2(newMsg);
+    Hash oldHash = sha256(xdr::xdr_to_opaque(oldMsg));
+    Hash newHash = sha256(xdr::xdr_to_opaque(newMsg));
 
     auto oldIter = mFloodMap.find(oldHash);
     if (oldIter != mFloodMap.end())

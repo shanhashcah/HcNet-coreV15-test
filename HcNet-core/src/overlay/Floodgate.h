@@ -52,8 +52,8 @@ class Floodgate
 
   public:
     Floodgate(Application& app);
-    // forget data strictly older than `maxLedger`
-    void clearBelow(uint32_t maxLedger);
+    // Floodgate will be cleared after every ledger close
+    void clearBelow(uint32_t currentLedger);
     // returns true if this is a new record
     // fills msgID with msg's hash
     bool addRecord(HcNetMessage const& msg, Peer::pointer fromPeer,

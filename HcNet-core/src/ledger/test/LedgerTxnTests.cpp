@@ -156,9 +156,10 @@ TEST_CASE("LedgerTxn commit into LedgerTxn", "[ledgertxn]")
             REQUIRE(ltx2.create(le1));
             ltx2.commit();
 
-            validate(ltx1, {{key,
-                             {std::make_shared<InternalLedgerEntry const>(le1),
-                              nullptr}}});
+            validate(ltx1,
+                     {{key,
+                       {std::make_shared<GeneralizedLedgerEntry const>(le1),
+                        nullptr}}});
         }
 
         SECTION("loaded in child")
@@ -170,9 +171,10 @@ TEST_CASE("LedgerTxn commit into LedgerTxn", "[ledgertxn]")
             REQUIRE(ltx2.load(key));
             ltx2.commit();
 
-            validate(ltx1, {{key,
-                             {std::make_shared<InternalLedgerEntry const>(le1),
-                              nullptr}}});
+            validate(ltx1,
+                     {{key,
+                       {std::make_shared<GeneralizedLedgerEntry const>(le1),
+                        nullptr}}});
         }
 
         SECTION("modified in child")
@@ -186,9 +188,10 @@ TEST_CASE("LedgerTxn commit into LedgerTxn", "[ledgertxn]")
             ltxe1.current() = le2;
             ltx2.commit();
 
-            validate(ltx1, {{key,
-                             {std::make_shared<InternalLedgerEntry const>(le2),
-                              nullptr}}});
+            validate(ltx1,
+                     {{key,
+                       {std::make_shared<GeneralizedLedgerEntry const>(le2),
+                        nullptr}}});
         }
 
         SECTION("erased in child")
@@ -242,7 +245,7 @@ TEST_CASE("LedgerTxn rollback into LedgerTxn", "[ledgertxn]")
 
                 validate(ltx1,
                          {{key,
-                           {std::make_shared<InternalLedgerEntry const>(le1),
+                           {std::make_shared<GeneralizedLedgerEntry const>(le1),
                             nullptr}}});
             }
 
@@ -259,7 +262,7 @@ TEST_CASE("LedgerTxn rollback into LedgerTxn", "[ledgertxn]")
 
                 validate(ltx1,
                          {{key,
-                           {std::make_shared<InternalLedgerEntry const>(le1),
+                           {std::make_shared<GeneralizedLedgerEntry const>(le1),
                             nullptr}}});
             }
 
@@ -274,7 +277,7 @@ TEST_CASE("LedgerTxn rollback into LedgerTxn", "[ledgertxn]")
 
                 validate(ltx1,
                          {{key,
-                           {std::make_shared<InternalLedgerEntry const>(le1),
+                           {std::make_shared<GeneralizedLedgerEntry const>(le1),
                             nullptr}}});
             }
         }
@@ -540,7 +543,7 @@ TEST_CASE("LedgerTxn create", "[ledgertxn]")
         LedgerTxn ltx1(app->getLedgerTxnRoot());
         REQUIRE(ltx1.create(le));
         validate(ltx1, {{key,
-                         {std::make_shared<InternalLedgerEntry const>(le),
+                         {std::make_shared<GeneralizedLedgerEntry const>(le),
                           nullptr}}});
     }
 
@@ -566,7 +569,7 @@ TEST_CASE("LedgerTxn create", "[ledgertxn]")
         LedgerTxn ltx3(ltx2);
         REQUIRE(ltx3.create(le));
         validate(ltx3, {{key,
-                         {std::make_shared<InternalLedgerEntry const>(le),
+                         {std::make_shared<GeneralizedLedgerEntry const>(le),
                           nullptr}}});
     }
 }
@@ -602,9 +605,10 @@ TEST_CASE("LedgerTxn createOrUpdateWithoutLoading", "[ledgertxn]")
         {
             LedgerTxn ltx1(app->getLedgerTxnRoot());
             REQUIRE_NOTHROW(ltx1.createOrUpdateWithoutLoading(le));
-            validate(ltx1, {{key,
-                             {std::make_shared<InternalLedgerEntry const>(le),
-                              nullptr}}});
+            validate(ltx1,
+                     {{key,
+                       {std::make_shared<GeneralizedLedgerEntry const>(le),
+                        nullptr}}});
         }
 
         SECTION("when key exists in self or parent")
@@ -617,8 +621,8 @@ TEST_CASE("LedgerTxn createOrUpdateWithoutLoading", "[ledgertxn]")
             REQUIRE_NOTHROW(ltx2.createOrUpdateWithoutLoading(le));
             validate(ltx2,
                      {{key,
-                       {std::make_shared<InternalLedgerEntry const>(le),
-                        std::make_shared<InternalLedgerEntry const>(le)}}});
+                       {std::make_shared<GeneralizedLedgerEntry const>(le),
+                        std::make_shared<GeneralizedLedgerEntry const>(le)}}});
         }
 
         SECTION("when key is active during overwrite")
@@ -640,9 +644,10 @@ TEST_CASE("LedgerTxn createOrUpdateWithoutLoading", "[ledgertxn]")
 
             LedgerTxn ltx3(ltx2);
             REQUIRE_NOTHROW(ltx3.createOrUpdateWithoutLoading(le));
-            validate(ltx3, {{key,
-                             {std::make_shared<InternalLedgerEntry const>(le),
-                              nullptr}}});
+            validate(ltx3,
+                     {{key,
+                       {std::make_shared<GeneralizedLedgerEntry const>(le),
+                        nullptr}}});
         }
     };
 
@@ -701,10 +706,10 @@ TEST_CASE("LedgerTxn erase", "[ledgertxn]")
 
             LedgerTxn ltx2(ltx1);
             REQUIRE_NOTHROW(ltx2.erase(key));
-            validate(
-                ltx2,
-                {{key,
-                  {nullptr, std::make_shared<InternalLedgerEntry const>(le)}}});
+            validate(ltx2,
+                     {{key,
+                       {nullptr,
+                        std::make_shared<GeneralizedLedgerEntry const>(le)}}});
         }
 
         SECTION("when key exists in grandparent, erased in parent")
@@ -1312,8 +1317,8 @@ TEST_CASE("LedgerTxn load", "[ledgertxn]")
             REQUIRE(ltx2.load(key));
             validate(ltx2,
                      {{key,
-                       {std::make_shared<InternalLedgerEntry const>(le),
-                        std::make_shared<InternalLedgerEntry const>(le)}}});
+                       {std::make_shared<GeneralizedLedgerEntry const>(le),
+                        std::make_shared<GeneralizedLedgerEntry const>(le)}}});
         }
 
         SECTION("when key exists in grandparent, erased in parent")
@@ -1355,9 +1360,7 @@ TEST_CASE("LedgerTxn load", "[ledgertxn]")
 
                 {
                     std::string accountIDStr, issuerStr, assetCodeStr;
-                    auto invalidAssets = testutil::getInvalidAssets(acc);
-                    for (auto const& asset : invalidAssets)
-                    {
+                    auto loadTest = [&](Asset const& asset) {
                         auto key = trustlineKey(acc2.getPublicKey(), asset);
 
                         // verify that this doesn't throw before V15
@@ -1367,6 +1370,52 @@ TEST_CASE("LedgerTxn load", "[ledgertxn]")
 
                         REQUIRE_THROWS_AS(ltx1.load(key),
                                           NonSociRelatedException);
+                    };
+
+                    {
+                        auto asset = txtest::makeAsset(acc, "\n");
+                        UNSCOPED_INFO("control char in asset name");
+                        loadTest(asset);
+                    }
+
+                    {
+                        std::string assetCode;
+                        assetCode.push_back(0);
+                        assetCode.push_back('a');
+                        auto asset = txtest::makeAsset(acc, assetCode);
+                        UNSCOPED_INFO("non-trailing zero in asset name");
+                        loadTest(asset);
+                    }
+
+                    {
+                        std::string assetCode;
+                        assetCode.push_back(0);
+                        auto asset = txtest::makeAsset(acc, assetCode);
+                        UNSCOPED_INFO("zero asset name");
+                        loadTest(asset);
+                    }
+
+                    {
+                        // start right after z(122), and go through some of the
+                        // extended ascii codes
+                        for (int i = 123; i < 140; ++i)
+                        {
+                            std::string assetCode;
+                            assetCode.push_back(i);
+                            auto asset = txtest::makeAsset(acc, assetCode);
+                            UNSCOPED_INFO(
+                                fmt::format("invalid ascii code={}", i));
+                            loadTest(asset);
+                        }
+                    }
+
+                    {
+                        Asset asset;
+                        asset.type(ASSET_TYPE_CREDIT_ALPHANUM12);
+                        asset.alphaNum12().issuer = acc.getPublicKey();
+                        strToAssetCode(asset.alphaNum12().assetCode, "aaaa");
+                        UNSCOPED_INFO("AssetCode12 with less than 5 chars");
+                        loadTest(asset);
                     }
                 }
 
@@ -3456,7 +3505,7 @@ TEST_CASE("LedgerTxn generalized ledger entries", "[ledgertxn]")
     auto app = createTestApplication(clock, getTestConfig());
     app->start();
 
-    InternalLedgerEntry gle(InternalLedgerEntryType::SPONSORSHIP);
+    GeneralizedLedgerEntry gle(GeneralizedLedgerEntryType::SPONSORSHIP);
     gle.sponsorshipEntry().sponsoredID = autocheck::generator<AccountID>()(5);
     gle.sponsorshipEntry().sponsoringID = autocheck::generator<AccountID>()(5);
 

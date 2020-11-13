@@ -52,8 +52,10 @@ closest_cluster(double p, std::set<double> const& centers)
 }
 
 std::set<double>
-k_meansPP(std::vector<double> const& points, uint32_t k)
+k_means(std::vector<double> const& points, uint32_t k)
 {
+    ZoneScoped;
+
     if (k == 0)
     {
         throw std::runtime_error("k_means: k must be positive");
@@ -64,69 +66,36 @@ k_meansPP(std::vector<double> const& points, uint32_t k)
         return std::set<double>(points.begin(), points.end());
     }
 
-    std::set<double> centroids;
+    const uint32_t MAX_RECOMPUTE_ITERATIONS = 50;
 
-    auto backlog = points;
+    std::set<double> centroids{rand_element(points)};
+    uint32_t i = 0;
 
-    auto moveIndexToCentroid = [&](size_t index) {
-        releaseAssertOrThrow(index < backlog.size());
-        auto it = backlog.begin() + index;
-        auto val = *it;
-        backlog.erase(it);
-        centroids.emplace(val);
-    };
-
-    // start with a random element
-    moveIndexToCentroid(rand_uniform<size_t>(0, backlog.size() - 1));
-
-    while (centroids.size() < k && !backlog.empty())
+    while (centroids.size() < k && i++ < MAX_RECOMPUTE_ITERATIONS)
     {
         std::vector<double> weights;
-        weights.reserve(backlog.size());
-
-        for (auto const& p : backlog)
+        for (auto const& p : points)
         {
             auto closest = closest_cluster(p, centroids);
-            auto d2 = closest - p;
-            d2 *= d2;
-            // give a non zero probability
-            d2 = std::max(std::numeric_limits<double>::min(), d2);
-            weights.emplace_back(d2);
+            weights.emplace_back(std::pow(std::fabs(closest - p), 2));
         }
 
-        // Select the next centroid based on weights, furthest away
         std::discrete_distribution<size_t> weightedDistribution(weights.begin(),
                                                                 weights.end());
+
+        // Select the next centroid based on weights
         auto nextIndex = weightedDistribution(gRandomEngine);
-        moveIndexToCentroid(nextIndex);
-    }
-
-    return centroids;
-}
-
-std::set<double>
-k_means(std::vector<double> const& points, uint32_t k)
-{
-    ZoneScoped;
-    // initialize centroids with k-means++
-    std::set<double> centroids = k_meansPP(points, k);
-
-    // could not pick k points to start with
-    if (centroids.size() < k)
-    {
-        return centroids;
+        releaseAssertOrThrow(nextIndex < points.size());
+        centroids.insert(points[nextIndex]);
     }
 
     bool recalculate = true;
     uint32_t iteration = 0;
 
-    const uint32_t MAX_RECOMPUTE_ITERATIONS = 50;
-
     // Run until convergence or iteration depth exhaustion
     while (recalculate && iteration++ < MAX_RECOMPUTE_ITERATIONS)
     {
         std::unordered_map<double, std::vector<double>> assignment;
-        assignment.reserve(points.size());
         recalculate = false;
         // centroid -> assigned points
         for (auto const& p : points)

@@ -26,8 +26,7 @@ namespace HcNet
 
 ApplyCheckpointWork::ApplyCheckpointWork(Application& app,
                                          TmpDir const& downloadDir,
-                                         LedgerRange const& range,
-                                         OnFailureCallback cb)
+                                         LedgerRange const& range)
     : BasicWork(app,
                 "apply-ledgers-" +
                     fmt::format("{}-{}", range.mFirst, range.limit()),
@@ -36,7 +35,6 @@ ApplyCheckpointWork::ApplyCheckpointWork(Application& app,
     , mLedgerRange(range)
     , mCheckpoint(
           app.getHistoryManager().checkpointContainingLedger(range.mFirst))
-    , mOnFailure(cb)
     , mApplyLedgerSuccess(app.getMetrics().NewMeter(
           {"history", "apply-ledger-chain", "success"}, "event"))
     , mApplyLedgerFailure(app.getMetrics().NewMeter(
@@ -361,14 +359,5 @@ ApplyCheckpointWork::onAbort()
         return false;
     }
     return true;
-}
-
-void
-ApplyCheckpointWork::onFailureRaise()
-{
-    if (mOnFailure)
-    {
-        mOnFailure();
-    }
 }
 }

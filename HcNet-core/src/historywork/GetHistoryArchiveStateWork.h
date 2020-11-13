@@ -16,11 +16,10 @@ namespace HcNet
 {
 
 class HistoryArchive;
-class GetRemoteFileWork;
 
 class GetHistoryArchiveStateWork : public Work
 {
-    std::shared_ptr<GetRemoteFileWork> mGetRemoteFile;
+    std::shared_ptr<BasicWork> mGetRemoteFile;
 
     HistoryArchiveState mState;
     uint32_t mSeq;

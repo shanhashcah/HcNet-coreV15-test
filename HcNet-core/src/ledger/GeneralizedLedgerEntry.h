@@ -10,7 +10,7 @@
 namespace HcNet
 {
 
-enum class InternalLedgerEntryType
+enum class GeneralizedLedgerEntryType
 {
     LEDGER_ENTRY,
     SPONSORSHIP,
@@ -27,41 +27,41 @@ struct SponsorshipCounterKey
     AccountID sponsoringID;
 };
 
-class InternalLedgerKey
+class GeneralizedLedgerKey
 {
   private:
-    InternalLedgerEntryType mType;
+    GeneralizedLedgerEntryType mType;
     union {
         LedgerKey mLedgerKey;
         SponsorshipKey mSponsorshipKey;
         SponsorshipCounterKey mSponsorshipCounterKey;
     };
 
-    void assign(InternalLedgerKey const& glk);
-    void assign(InternalLedgerKey&& glk);
+    void assign(GeneralizedLedgerKey const& glk);
+    void assign(GeneralizedLedgerKey&& glk);
     void construct();
     void destruct();
 
-    void checkDiscriminant(InternalLedgerEntryType expected) const;
+    void checkDiscriminant(GeneralizedLedgerEntryType expected) const;
 
   public:
-    InternalLedgerKey();
-    explicit InternalLedgerKey(InternalLedgerEntryType t);
+    GeneralizedLedgerKey();
+    explicit GeneralizedLedgerKey(GeneralizedLedgerEntryType t);
 
-    InternalLedgerKey(LedgerKey const& lk);
-    explicit InternalLedgerKey(SponsorshipKey const& sk);
-    explicit InternalLedgerKey(SponsorshipCounterKey const& sck);
+    GeneralizedLedgerKey(LedgerKey const& lk);
+    explicit GeneralizedLedgerKey(SponsorshipKey const& sk);
+    explicit GeneralizedLedgerKey(SponsorshipCounterKey const& sck);
 
-    InternalLedgerKey(InternalLedgerKey const& glk);
-    InternalLedgerKey(InternalLedgerKey&& glk);
+    GeneralizedLedgerKey(GeneralizedLedgerKey const& glk);
+    GeneralizedLedgerKey(GeneralizedLedgerKey&& glk);
 
-    InternalLedgerKey& operator=(InternalLedgerKey const& glk);
-    InternalLedgerKey& operator=(InternalLedgerKey&& glk);
+    GeneralizedLedgerKey& operator=(GeneralizedLedgerKey const& glk);
+    GeneralizedLedgerKey& operator=(GeneralizedLedgerKey&& glk);
 
-    ~InternalLedgerKey();
+    ~GeneralizedLedgerKey();
 
-    void type(InternalLedgerEntryType t);
-    InternalLedgerEntryType type() const;
+    void type(GeneralizedLedgerEntryType t);
+    GeneralizedLedgerEntryType type() const;
 
     LedgerKey& ledgerKey();
     LedgerKey const& ledgerKey() const;
@@ -87,41 +87,41 @@ struct SponsorshipCounterEntry
     int64_t numSponsoring;
 };
 
-class InternalLedgerEntry
+class GeneralizedLedgerEntry
 {
   private:
-    InternalLedgerEntryType mType;
+    GeneralizedLedgerEntryType mType;
     union {
         LedgerEntry mLedgerEntry;
         SponsorshipEntry mSponsorshipEntry;
         SponsorshipCounterEntry mSponsorshipCounterEntry;
     };
 
-    void assign(InternalLedgerEntry const& gle);
-    void assign(InternalLedgerEntry&& gle);
+    void assign(GeneralizedLedgerEntry const& gle);
+    void assign(GeneralizedLedgerEntry&& gle);
     void construct();
     void destruct();
 
-    void checkDiscriminant(InternalLedgerEntryType expected) const;
+    void checkDiscriminant(GeneralizedLedgerEntryType expected) const;
 
   public:
-    InternalLedgerEntry();
-    explicit InternalLedgerEntry(InternalLedgerEntryType t);
+    GeneralizedLedgerEntry();
+    explicit GeneralizedLedgerEntry(GeneralizedLedgerEntryType t);
 
-    InternalLedgerEntry(LedgerEntry const& le);
-    explicit InternalLedgerEntry(SponsorshipEntry const& se);
-    explicit InternalLedgerEntry(SponsorshipCounterEntry const& sce);
+    GeneralizedLedgerEntry(LedgerEntry const& le);
+    explicit GeneralizedLedgerEntry(SponsorshipEntry const& se);
+    explicit GeneralizedLedgerEntry(SponsorshipCounterEntry const& sce);
 
-    InternalLedgerEntry(InternalLedgerEntry const& gle);
-    InternalLedgerEntry(InternalLedgerEntry&& gle);
+    GeneralizedLedgerEntry(GeneralizedLedgerEntry const& gle);
+    GeneralizedLedgerEntry(GeneralizedLedgerEntry&& gle);
 
-    InternalLedgerEntry& operator=(InternalLedgerEntry const& gle);
-    InternalLedgerEntry& operator=(InternalLedgerEntry&& gle);
+    GeneralizedLedgerEntry& operator=(GeneralizedLedgerEntry const& gle);
+    GeneralizedLedgerEntry& operator=(GeneralizedLedgerEntry&& gle);
 
-    ~InternalLedgerEntry();
+    ~GeneralizedLedgerEntry();
 
-    void type(InternalLedgerEntryType t);
-    InternalLedgerEntryType type() const;
+    void type(GeneralizedLedgerEntryType t);
+    GeneralizedLedgerEntryType type() const;
 
     LedgerEntry& ledgerEntry();
     LedgerEntry const& ledgerEntry() const;
@@ -132,7 +132,7 @@ class InternalLedgerEntry
     SponsorshipCounterEntry& sponsorshipCounterEntry();
     SponsorshipCounterEntry const& sponsorshipCounterEntry() const;
 
-    InternalLedgerKey toKey() const;
+    GeneralizedLedgerKey toKey() const;
 
     std::string toString() const;
 };
@@ -151,8 +151,12 @@ bool operator==(SponsorshipCounterEntry const& lhs,
 bool operator!=(SponsorshipCounterEntry const& lhs,
                 SponsorshipCounterEntry const& rhs);
 
-bool operator==(InternalLedgerKey const& lhs, InternalLedgerKey const& rhs);
-bool operator!=(InternalLedgerKey const& lhs, InternalLedgerKey const& rhs);
-bool operator==(InternalLedgerEntry const& lhs, InternalLedgerEntry const& rhs);
-bool operator!=(InternalLedgerEntry const& lhs, InternalLedgerEntry const& rhs);
+bool operator==(GeneralizedLedgerKey const& lhs,
+                GeneralizedLedgerKey const& rhs);
+bool operator!=(GeneralizedLedgerKey const& lhs,
+                GeneralizedLedgerKey const& rhs);
+bool operator==(GeneralizedLedgerEntry const& lhs,
+                GeneralizedLedgerEntry const& rhs);
+bool operator!=(GeneralizedLedgerEntry const& lhs,
+                GeneralizedLedgerEntry const& rhs);
 }

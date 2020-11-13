@@ -79,8 +79,6 @@ class PendingEnvelopes
     medida::Timer& mFetchDuration;
     medida::Timer& mFetchTxSetTimer;
     medida::Timer& mFetchQsetTimer;
-    // Tracked cost per slot
-    medida::Histogram& mCostPerSlot;
 
     // discards all SCP envelopes thats use QSet with given hash,
     // as it is not sane QSet
@@ -108,13 +106,6 @@ class PendingEnvelopes
     void cleanKnownData();
 
     void recordReceivedCost(SCPEnvelope const& env);
-
-    std::unordered_map<NodeID, size_t>
-    getCostPerValidator(uint64 slotIndex) const;
-
-    // stops all pending downloads for slots strictly below `slotIndex`
-    // counts partially downloaded data towards the cost for that slot
-    void stopAllBelow(uint64 slotIndex);
 
   public:
     PendingEnvelopes(Application& app, HerderImpl& herder);
@@ -178,10 +169,9 @@ class PendingEnvelopes
 
     SCPEnvelopeWrapperPtr pop(uint64 slotIndex);
 
-    // erases data for all slots strictly below `slotIndex`
     void eraseBelow(uint64 slotIndex);
 
-    void forceRebuildQuorum();
+    void slotClosed(uint64 slotIndex);
 
     std::vector<uint64> readySlots();
 
@@ -200,8 +190,6 @@ class PendingEnvelopes
     // updates internal state when an envelope was successfully processed
     void envelopeProcessed(SCPEnvelope const& env);
 
-    void reportCostOutliersForSlot(int64_t slotIndex, bool updateMetrics) const;
-    Json::Value getJsonValidatorCost(bool summary, bool fullKeys,
-                                     uint64 index) const;
+    std::unordered_map<NodeID, size_t> getCostPerValidator(uint64 slotIndex);
 };
 }

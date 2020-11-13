@@ -3,7 +3,7 @@
 // of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 #include "ledger/LedgerTxnEntry.h"
-#include "ledger/InternalLedgerEntry.h"
+#include "ledger/GeneralizedLedgerEntry.h"
 #include "ledger/LedgerTxn.h"
 #include "util/XDROperators.h"
 #include "util/types.h"
@@ -16,10 +16,10 @@ namespace HcNet
 class LedgerTxnEntry::Impl : public EntryImplBase
 {
     AbstractLedgerTxn& mLedgerTxn;
-    InternalLedgerEntry& mCurrent;
+    GeneralizedLedgerEntry& mCurrent;
 
   public:
-    explicit Impl(AbstractLedgerTxn& ltx, InternalLedgerEntry& current);
+    explicit Impl(AbstractLedgerTxn& ltx, GeneralizedLedgerEntry& current);
 
     ~Impl() override;
 
@@ -34,8 +34,8 @@ class LedgerTxnEntry::Impl : public EntryImplBase
     LedgerEntry& current();
     LedgerEntry const& current() const;
 
-    InternalLedgerEntry& currentGeneralized();
-    InternalLedgerEntry const& currentGeneralized() const;
+    GeneralizedLedgerEntry& currentGeneralized();
+    GeneralizedLedgerEntry const& currentGeneralized() const;
 
     void deactivate();
 
@@ -44,7 +44,7 @@ class LedgerTxnEntry::Impl : public EntryImplBase
 
 std::shared_ptr<LedgerTxnEntry::Impl>
 LedgerTxnEntry::makeSharedImpl(AbstractLedgerTxn& ltx,
-                               InternalLedgerEntry& current)
+                               GeneralizedLedgerEntry& current)
 {
     return std::make_shared<Impl>(ltx, current);
 }
@@ -64,7 +64,8 @@ LedgerTxnEntry::LedgerTxnEntry(std::shared_ptr<Impl> const& impl)
 {
 }
 
-LedgerTxnEntry::Impl::Impl(AbstractLedgerTxn& ltx, InternalLedgerEntry& current)
+LedgerTxnEntry::Impl::Impl(AbstractLedgerTxn& ltx,
+                           GeneralizedLedgerEntry& current)
     : mLedgerTxn(ltx), mCurrent(current)
 {
 }
@@ -133,25 +134,25 @@ LedgerTxnEntry::Impl::current() const
     return mCurrent.ledgerEntry();
 }
 
-InternalLedgerEntry&
+GeneralizedLedgerEntry&
 LedgerTxnEntry::currentGeneralized()
 {
     return getImpl()->currentGeneralized();
 }
 
-InternalLedgerEntry const&
+GeneralizedLedgerEntry const&
 LedgerTxnEntry::currentGeneralized() const
 {
     return getImpl()->currentGeneralized();
 }
 
-InternalLedgerEntry&
+GeneralizedLedgerEntry&
 LedgerTxnEntry::Impl::currentGeneralized()
 {
     return mCurrent;
 }
 
-InternalLedgerEntry const&
+GeneralizedLedgerEntry const&
 LedgerTxnEntry::Impl::currentGeneralized() const
 {
     return mCurrent;
@@ -215,10 +216,11 @@ LedgerTxnEntry::swap(LedgerTxnEntry& other)
 class ConstLedgerTxnEntry::Impl : public EntryImplBase
 {
     AbstractLedgerTxn& mLedgerTxn;
-    InternalLedgerEntry const mCurrent;
+    GeneralizedLedgerEntry const mCurrent;
 
   public:
-    explicit Impl(AbstractLedgerTxn& ltx, InternalLedgerEntry const& current);
+    explicit Impl(AbstractLedgerTxn& ltx,
+                  GeneralizedLedgerEntry const& current);
 
     ~Impl() override;
 
@@ -232,14 +234,14 @@ class ConstLedgerTxnEntry::Impl : public EntryImplBase
 
     LedgerEntry const& current() const;
 
-    InternalLedgerEntry const& currentGeneralized() const;
+    GeneralizedLedgerEntry const& currentGeneralized() const;
 
     void deactivate();
 };
 
 std::shared_ptr<ConstLedgerTxnEntry::Impl>
 ConstLedgerTxnEntry::makeSharedImpl(AbstractLedgerTxn& ltx,
-                                    InternalLedgerEntry const& current)
+                                    GeneralizedLedgerEntry const& current)
 {
     return std::make_shared<Impl>(ltx, current);
 }
@@ -260,7 +262,7 @@ ConstLedgerTxnEntry::ConstLedgerTxnEntry(std::shared_ptr<Impl> const& impl)
 }
 
 ConstLedgerTxnEntry::Impl::Impl(AbstractLedgerTxn& ltx,
-                                InternalLedgerEntry const& current)
+                                GeneralizedLedgerEntry const& current)
     : mLedgerTxn(ltx), mCurrent(current)
 {
 }
@@ -317,13 +319,13 @@ ConstLedgerTxnEntry::Impl::current() const
     return mCurrent.ledgerEntry();
 }
 
-InternalLedgerEntry const&
+GeneralizedLedgerEntry const&
 ConstLedgerTxnEntry::currentGeneralized() const
 {
     return getImpl()->currentGeneralized();
 }
 
-InternalLedgerEntry const&
+GeneralizedLedgerEntry const&
 ConstLedgerTxnEntry::Impl::currentGeneralized() const
 {
     return mCurrent;

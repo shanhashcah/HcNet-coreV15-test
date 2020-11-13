@@ -2,7 +2,7 @@
 // overlapped_ptr.cpp
 // ~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2020 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2019 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -16,7 +16,6 @@
 // Test that header file is self-contained.
 #include "asio/windows/overlapped_ptr.hpp"
 
-#include "asio/any_io_executor.hpp"
 #include "asio/executor.hpp"
 #include "asio/io_context.hpp"
 #include "../unit_test.hpp"
@@ -51,10 +50,7 @@ void test()
   try
   {
     io_context ioc;
-    asio::any_io_executor ex1(ioc.get_executor());
-#if !defined(ASIO_NO_TS_EXECUTORS)
-    asio::executor ex2(ioc.get_executor());
-#endif // !defined(ASIO_NO_TS_EXECUTORS)
+    asio::executor ex(ioc.get_executor());
 
     // basic_overlapped_ptr constructors.
 
@@ -65,12 +61,8 @@ void test()
 
     win::overlapped_ptr ptr4(ioc.get_executor(), &overlapped_handler_1);
     win::overlapped_ptr ptr5(ioc.get_executor(), overlapped_handler_2());
-    win::overlapped_ptr ptr6(ex1, &overlapped_handler_1);
-    win::overlapped_ptr ptr7(ex1, overlapped_handler_2());
-#if !defined(ASIO_NO_TS_EXECUTORS)
-    win::overlapped_ptr ptr8(ex2, &overlapped_handler_1);
-    win::overlapped_ptr ptr9(ex2, overlapped_handler_2());
-#endif // !defined(ASIO_NO_TS_EXECUTORS)
+    win::overlapped_ptr ptr6(ex, &overlapped_handler_1);
+    win::overlapped_ptr ptr7(ex, overlapped_handler_2());
 
     // overlapped_ptr functions.
 
@@ -81,18 +73,14 @@ void test()
 
     ptr2.reset(ioc.get_executor(), &overlapped_handler_1);
     ptr3.reset(ioc.get_executor(), overlapped_handler_2());
-    ptr2.reset(ex1, &overlapped_handler_1);
-    ptr3.reset(ex1, overlapped_handler_2());
-#if !defined(ASIO_NO_TS_EXECUTORS)
-    ptr3.reset(ex2, &overlapped_handler_1);
-    ptr3.reset(ex2, overlapped_handler_2());
-#endif // !defined(ASIO_NO_TS_EXECUTORS)
+    ptr2.reset(ex, &overlapped_handler_1);
+    ptr3.reset(ex, overlapped_handler_2());
 
     OVERLAPPED* ov1 = ptr1.get();
     (void)ov1;
 
-    const win::overlapped_ptr& ptr10(ptr1);
-    const OVERLAPPED* ov2 = ptr10.get();
+    const win::overlapped_ptr& ptr8(ptr1);
+    const OVERLAPPED* ov2 = ptr4.get();
     (void)ov2;
 
     OVERLAPPED* ov3 = ptr1.release();

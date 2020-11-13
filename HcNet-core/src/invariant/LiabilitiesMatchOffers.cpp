@@ -119,11 +119,12 @@ checkAuthorized(LedgerEntry const* current, LedgerEntry const* previous)
 }
 
 static std::string
-checkAuthorized(std::shared_ptr<InternalLedgerEntry const> const& genCurrent,
-                std::shared_ptr<InternalLedgerEntry const> const& genPrevious)
+checkAuthorized(
+    std::shared_ptr<GeneralizedLedgerEntry const> const& genCurrent,
+    std::shared_ptr<GeneralizedLedgerEntry const> const& genPrevious)
 {
     auto type = genCurrent ? genCurrent->type() : genPrevious->type();
-    if (type == InternalLedgerEntryType::LEDGER_ENTRY)
+    if (type == GeneralizedLedgerEntryType::LEDGER_ENTRY)
     {
         auto const* current = genCurrent ? &genCurrent->ledgerEntry() : nullptr;
         auto const* previous =
@@ -183,9 +184,10 @@ addOrSubtractLiabilities(
 static void
 addOrSubtractLiabilities(
     std::map<AccountID, std::map<Asset, Liabilities>>& deltaLiabilities,
-    std::shared_ptr<InternalLedgerEntry const> const& genEntry, bool isAdd)
+    std::shared_ptr<GeneralizedLedgerEntry const> const& genEntry, bool isAdd)
 {
-    if (genEntry && genEntry->type() == InternalLedgerEntryType::LEDGER_ENTRY)
+    if (genEntry &&
+        genEntry->type() == GeneralizedLedgerEntryType::LEDGER_ENTRY)
     {
         addOrSubtractLiabilities(deltaLiabilities, &genEntry->ledgerEntry(),
                                  isAdd);
@@ -195,8 +197,8 @@ addOrSubtractLiabilities(
 static void
 accumulateLiabilities(
     std::map<AccountID, std::map<Asset, Liabilities>>& deltaLiabilities,
-    std::shared_ptr<InternalLedgerEntry const> const& current,
-    std::shared_ptr<InternalLedgerEntry const> const& previous)
+    std::shared_ptr<GeneralizedLedgerEntry const> const& current,
+    std::shared_ptr<GeneralizedLedgerEntry const> const& previous)
 {
     addOrSubtractLiabilities(deltaLiabilities, current, true);
     addOrSubtractLiabilities(deltaLiabilities, previous, false);
@@ -284,12 +286,12 @@ checkBalanceAndLimit(LedgerHeader const& header, LedgerEntry const* current,
 static std::string
 checkBalanceAndLimit(
     LedgerHeader const& header,
-    std::shared_ptr<InternalLedgerEntry const> const& genCurrent,
-    std::shared_ptr<InternalLedgerEntry const> const& genPrevious,
+    std::shared_ptr<GeneralizedLedgerEntry const> const& genCurrent,
+    std::shared_ptr<GeneralizedLedgerEntry const> const& genPrevious,
     uint32_t ledgerVersion)
 {
     auto type = genCurrent ? genCurrent->type() : genPrevious->type();
-    if (type == InternalLedgerEntryType::LEDGER_ENTRY)
+    if (type == GeneralizedLedgerEntryType::LEDGER_ENTRY)
     {
         auto const* current = genCurrent ? &genCurrent->ledgerEntry() : nullptr;
         auto const* previous =

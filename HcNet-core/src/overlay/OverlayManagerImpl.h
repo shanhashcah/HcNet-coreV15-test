@@ -100,7 +100,7 @@ class OverlayManagerImpl : public OverlayManager
     OverlayManagerImpl(Application& app);
     ~OverlayManagerImpl();
 
-    void clearLedgersBelow(uint32_t ledgerSeq, uint32_t lclSeq) override;
+    void ledgerClosed(uint32_t lastClosedledgerSeq) override;
     bool recvFloodedMsgID(HcNetMessage const& msg, Peer::pointer peer,
                           Hash& msgID) override;
     void forgetFloodedMsg(Hash const& msgID) override;

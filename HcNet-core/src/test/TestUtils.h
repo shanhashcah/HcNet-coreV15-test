@@ -26,8 +26,6 @@ void injectSendPeersAndReschedule(VirtualClock::time_point& end,
 
 void shutdownWorkScheduler(Application& app);
 
-std::vector<Asset> getInvalidAssets(SecretKey const& issuer);
-
 class BucketListDepthModifier
 {
     uint32_t const mPrevDepth;

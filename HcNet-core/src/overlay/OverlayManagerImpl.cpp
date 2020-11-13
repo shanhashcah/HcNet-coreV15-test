@@ -619,10 +619,10 @@ OverlayManagerImpl::getConnectedPeer(PeerBareAddress const& address)
 }
 
 void
-OverlayManagerImpl::clearLedgersBelow(uint32_t ledgerSeq, uint32_t lclSeq)
+OverlayManagerImpl::ledgerClosed(uint32_t lastClosedledgerSeq)
 {
-    mFloodGate.clearBelow(ledgerSeq);
-    mSurveyManager->clearOldLedgers(lclSeq);
+    mFloodGate.clearBelow(lastClosedledgerSeq);
+    mSurveyManager->clearOldLedgers(lastClosedledgerSeq);
 }
 
 void

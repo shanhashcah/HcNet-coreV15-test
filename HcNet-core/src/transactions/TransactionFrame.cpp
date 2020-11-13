@@ -58,7 +58,7 @@ TransactionFrame::getFullHash() const
 {
     if (isZero(mFullHash))
     {
-        mFullHash = xdrSha256(mEnvelope);
+        mFullHash = sha256(xdr::xdr_to_opaque(mEnvelope));
     }
     return (mFullHash);
 }
@@ -787,8 +787,8 @@ TransactionFrame::applyOperations(SignatureChecker& signatureChecker,
                     auto glk = kv.first;
                     switch (glk.type())
                     {
-                    case InternalLedgerEntryType::SPONSORSHIP:
-                    case InternalLedgerEntryType::SPONSORSHIP_COUNTER:
+                    case GeneralizedLedgerEntryType::SPONSORSHIP:
+                    case GeneralizedLedgerEntryType::SPONSORSHIP_COUNTER:
                         getResult().result.code(txBAD_SPONSORSHIP);
                         return false;
                     default:

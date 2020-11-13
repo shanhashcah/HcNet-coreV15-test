@@ -86,9 +86,6 @@ class SCP
     // returns the validation state of the given slot
     bool isSlotFullyValidated(uint64 slotIndex);
 
-    // returns if we received messages from a v-blocking set
-    bool gotVBlocking(uint64 slotIndex);
-
     // Helpers for monitoring and reporting the internal memory-usage of the SCP
     // protocol to system metric reporters.
     size_t getKnownSlotsCount() const;
@@ -111,13 +108,9 @@ class SCP
                              std::function<bool(SCPEnvelope const&)> const& f,
                              bool forceSelf);
 
-    // iterates through slots, starting from slot startIndex
+    // iterates through slots, starting from ledgerSeq
     void processSlotsAscendingFrom(uint64 startIndex,
                                    std::function<bool(uint64)> const& f);
-
-    // iterates through slots, starting from slot startIndex
-    void processSlotsDescendingFrom(uint64 startIndex,
-                                    std::function<bool(uint64)> const& f);
 
     // returns the latest message from a node
     // or nullptr if not found
